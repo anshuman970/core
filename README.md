@@ -40,6 +40,33 @@ npm run dev
 # Server starts at http://localhost:3000
 ```
 
+## Database Migrations
+
+Altus 4 includes a simple migration system for managing your MySQL schema.
+
+- Migration SQL files are stored in the `migrations/` directory.
+- Each migration consists of an `up` script (e.g., `001_create_users_table.up.sql`) and a corresponding `down` script (e.g., `001_create_users_table.down.sql`).
+- The CLI migration tool is a shell script located at `bin/migrate.sh`.
+
+### Usage
+
+Run migrations from the project root:
+
+```bash
+# Apply all migrations (up)
+./bin/migrate.sh up
+
+# Revert all migrations (down)
+./bin/migrate.sh down
+
+# Show migration status
+./bin/migrate.sh status
+```
+
+You can customize database credentials in `bin/migrate.sh` as needed for your environment.
+
+**Note:** The migration system is inspired by Laravel's artisan commands but implemented as shell scripts for simplicity and portability.
+
 **For comprehensive documentation, see the [`/docs`](./docs) directory.**
 
 ## Overview
