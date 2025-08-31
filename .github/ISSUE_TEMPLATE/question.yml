@@ -1,0 +1,76 @@
+name: Question or Support
+description: Ask a question about using Altus 4
+title: '[Question]: '
+labels: ['question', 'documentation']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about Altus 4? We're here to help! Please check the documentation first, then provide details about your question.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What's your question?
+      description: Please describe your question as clearly as possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What are you trying to accomplish? What have you already tried?
+      placeholder: |
+        I'm trying to...
+        I've already tried...
+        I expected...
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic Area
+      description: Which area does your question relate to?
+      options:
+        - Installation and Setup
+        - Database Configuration
+        - Search API Usage
+        - AI Features
+        - Authentication
+        - Performance Optimization
+        - Troubleshooting
+        - Integration
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Altus 4 Version
+      description: What version of Altus 4 are you using?
+      placeholder: e.g., 0.1.0
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Please share relevant environment details
+      placeholder: |
+        - Operating System:
+        - Node.js version:
+        - MySQL version:
+        - Database size/complexity:
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you've done the following
+      options:
+        - label: I've searched existing issues and discussions
+          required: true
+        - label: I've checked the documentation
+          required: true
+        - label: I agree to follow this project's Code of Conduct
+          required: true

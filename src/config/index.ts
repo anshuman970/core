@@ -1,11 +1,11 @@
-import { AppConfig } from '@/types';
+import type { AppConfig } from '@/types';
 
 const requiredEnvVars = [
   'JWT_SECRET',
   'DB_HOST',
   'DB_USERNAME',
   'DB_PASSWORD',
-  'DB_DATABASE'
+  'DB_DATABASE',
 ] as const;
 
 // Validate required environment variables

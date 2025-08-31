@@ -1,0 +1,98 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  size-check:
+    name: PR Size Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Check PR size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const additions = files.reduce((acc, file) => acc + file.additions, 0);
+            const deletions = files.reduce((acc, file) => acc + file.deletions, 0);
+            const changes = additions + deletions;
+
+            let message = '';
+            let label = '';
+
+            if (changes > 500) {
+              message = '⚠️ This PR is quite large (500+ lines changed). Consider breaking it down into smaller PRs for easier review.';
+              label = 'large-pr';
+            } else if (changes > 200) {
+              message = 'ℹ️ This PR is moderately sized (200+ lines changed). Please ensure adequate testing.';
+              label = 'medium-pr';
+            } else {
+              message = '✅ This PR is appropriately sized for review.';
+              label = 'small-pr';
+            }
+
+            // Add label
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [label]
+            });
+
+            // Add comment if large
+            if (changes > 200) {
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: message
+              });
+            }
+
+  title-check:
+    name: PR Title Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Check PR title format
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)(\(.+\))?: .{1,50}/;
+
+            if (!conventionalCommitRegex.test(title)) {
+              const comment = `## PR Title Format
+              
+              ⚠️ **PR title should follow conventional commit format**
+              
+              **Current title:** \`${title}\`
+              
+              **Expected format:** \`type(scope): description\`
+              
+              **Examples:**
+              - \`feat(search): add semantic search capabilities\`
+              - \`fix(auth): resolve JWT token expiration issue\`
+              - \`docs(api): update search endpoint documentation\`
+              
+              **Valid types:** feat, fix, docs, style, refactor, perf, test, chore, ci, build
+              `;
+              
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+              
+              core.setFailed('PR title does not follow conventional commit format');
+            }

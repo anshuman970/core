@@ -1,6 +1,7 @@
 Analyze and debug: $ARGUMENTS
 
 Debug analysis for Altus 4:
+
 - Check database connection health
 - Verify environment variable configuration
 - Analyze error logs and stack traces

@@ -1,6 +1,7 @@
 Create/enhance service class for: $ARGUMENTS
 
 Service class requirements for Altus 4:
+
 - Follow dependency injection pattern
 - Include comprehensive TypeScript interfaces
 - Add proper error handling and logging

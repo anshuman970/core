@@ -1,6 +1,7 @@
 Create deployment configuration for: $ARGUMENTS
 
 Deployment requirements for Altus 4:
+
 - Create Docker configuration with multi-stage builds
 - Include docker-compose for development environment
 - Add environment variable documentation

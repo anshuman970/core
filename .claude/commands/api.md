@@ -1,6 +1,7 @@
 Create a new API endpoint for: $ARGUMENTS
 
 API endpoint requirements for Altus 4:
+
 - Use Express.js router pattern
 - Include proper TypeScript types from `src/types/index.ts`
 - Add Zod validation schema for request/response

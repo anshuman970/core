@@ -21,7 +21,7 @@ class AltusServer {
   private app: express.Application;
   private server: any;
 
-  constructor () {
+  constructor() {
     this.app = express();
     this.setupMiddleware();
     this.setupRoutes();
@@ -31,10 +31,12 @@ class AltusServer {
   private setupMiddleware(): void {
     // Security middleware
     this.app.use(helmet());
-    this.app.use(cors({
-      origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-      credentials: true,
-    }));
+    this.app.use(
+      cors({
+        origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+        credentials: true,
+      })
+    );
 
     // Request parsing
     this.app.use(express.json({ limit: '10mb' }));
@@ -88,7 +90,7 @@ class AltusServer {
     });
 
     // Handle uncaught exceptions
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', error => {
       logger.error('Uncaught Exception:', error);
       process.exit(1);
     });
@@ -109,11 +111,14 @@ class AltusServer {
       // Graceful shutdown
       process.on('SIGTERM', () => this.gracefulShutdown());
       process.on('SIGINT', () => this.gracefulShutdown());
-
     } catch (error) {
       logger.error('Failed to start server:', error);
       process.exit(1);
     }
+  }
+
+  public getApp(): express.Application {
+    return this.app;
   }
 
   private async gracefulShutdown(): Promise<void> {
@@ -130,7 +135,7 @@ class AltusServer {
 
 // Start the server
 const altusServer = new AltusServer();
-altusServer.start().catch((error) => {
+altusServer.start().catch(error => {
   logger.error('Failed to start Altus 4:', error);
   process.exit(1);
 });

@@ -7,19 +7,40 @@ Altus 4 is an intelligent search-as-a-service platform that leverages MySQL's bu
 ## Table of Contents
 
 - [Overview](#overview)
+- [Quick Start](#quick-start)
 - [Features](#features)
-- [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [API Reference](#api-reference)
+- [Documentation](#documentation)
 - [Development](#development)
 - [Testing](#testing)
 - [Deployment](#deployment)
 - [Contributing](#contributing)
 - [License](#license)
 - [Support](#support)
+
+## Quick Start
+
+Get Altus 4 running in 5 minutes:
+
+```bash
+# Clone and install
+git clone https://github.com/yourusername/altus4.git
+cd altus4 && npm install
+
+# Setup environment
+cp .env.example .env
+# Edit .env with your MySQL/Redis credentials
+
+# Start development server
+npm run dev
+# Server starts at http://localhost:3000
+```
+
+**For comprehensive documentation, see the [`/docs`](./docs) directory.**
 
 ## Overview
 
@@ -414,6 +435,28 @@ interface ApiResponse<T> {
 | `RATE_LIMIT_EXCEEDED` | 429         | Too many requests                 |
 | `INTERNAL_ERROR`      | 500         | Server error                      |
 
+## Documentation
+
+This README provides a quick overview. For comprehensive documentation:
+
+### **Complete Documentation**
+
+- **[Full Documentation](./docs/README.md)** - Complete documentation index
+- **[API Reference](./docs/api/README.md)** - Detailed API endpoints and schemas
+- **[Architecture](./docs/architecture/README.md)** - System design and patterns
+- **[Services](./docs/services/README.md)** - Service classes with code explanations
+- **[Setup & Deployment](./docs/setup/README.md)** - Installation and deployment guides
+- **[Testing](./docs/testing/README.md)** - Testing strategies and examples
+- **[Development](./docs/development/README.md)** - Developer guides and best practices
+- **[Examples](./docs/examples/README.md)** - Code examples and tutorials
+
+### **Quick Links**
+
+- [Service Documentation](./docs/services/) - Understand each service class
+- [API Schemas](./docs/api/schemas/) - Request/response formats
+- [Code Examples](./docs/examples/) - Working code samples
+- [Testing Guide](./docs/testing/unit-tests.md) - How to write and run tests
+
 ## Development
 
 ### Project Structure
@@ -595,7 +638,7 @@ services:
   altus4:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
     depends_on:

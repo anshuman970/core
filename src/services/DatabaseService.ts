@@ -1,6 +1,7 @@
-import mysql, { Pool, PoolConnection, RowDataPacket } from 'mysql2/promise';
+import type { Pool, PoolConnection, RowDataPacket } from 'mysql2/promise';
+import mysql from 'mysql2/promise';
 import { logger } from '@/utils/logger';
-import { DatabaseConnection, TableSchema, ColumnInfo, FullTextIndex, ConnectionPoolConfig } from '@/types';
+import type { ColumnInfo, DatabaseConnection, FullTextIndex, TableSchema } from '@/types';
 
 export class DatabaseService {
   private connections: Map<string, Pool> = new Map();
@@ -13,7 +14,7 @@ export class DatabaseService {
    */
   public async addConnection(dbConfig: DatabaseConnection): Promise<void> {
     try {
-      const poolConfig: ConnectionPoolConfig = {
+      const poolConfig: any = {
         host: dbConfig.host,
         port: dbConfig.port,
         user: dbConfig.username,
@@ -23,8 +24,14 @@ export class DatabaseService {
         acquireTimeout: this.acquireTimeout,
         timeout: this.connectionTimeout,
         reconnect: true,
-        ssl: dbConfig.ssl,
       };
+
+      // Add SSL configuration only if needed
+      if (dbConfig.ssl === true) {
+        poolConfig.ssl = 'Amazon RDS';
+      } else if (typeof dbConfig.ssl === 'string') {
+        poolConfig.ssl = dbConfig.ssl;
+      }
 
       const pool = mysql.createPool(poolConfig);
 
@@ -35,10 +42,11 @@ export class DatabaseService {
 
       this.connections.set(dbConfig.id, pool);
       logger.info(`Database connection added: ${dbConfig.name} (${dbConfig.id})`);
-
     } catch (error) {
       logger.error(`Failed to add database connection ${dbConfig.name}:`, error);
-      throw new Error(`Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -94,9 +102,7 @@ export class DatabaseService {
 
     try {
       // Get all tables
-      const [tables] = await connection.execute<RowDataPacket[]>(
-        'SHOW TABLES'
-      );
+      const [tables] = await connection.execute<RowDataPacket[]>('SHOW TABLES');
 
       const schemas: TableSchema[] = [];
 
@@ -104,10 +110,7 @@ export class DatabaseService {
         const tableName = Object.values(tableRow)[0] as string;
 
         // Get column information
-        const [columns] = await connection.execute<RowDataPacket[]>(
-          'DESCRIBE ??',
-          [tableName]
-        );
+        const [columns] = await connection.execute<RowDataPacket[]>('DESCRIBE ??', [tableName]);
 
         // Get full-text indexes
         const [indexes] = await connection.execute<RowDataPacket[]>(
@@ -141,7 +144,6 @@ export class DatabaseService {
       }
 
       return schemas;
-
     } finally {
       connection.release();
     }
@@ -180,11 +182,13 @@ export class DatabaseService {
         const indexGroups = this.groupIndexesByName(indexes);
 
         for (const index of indexGroups) {
-          const columnsToSearch = columns ?
-            index.columns.filter(col => columns.includes(col)) :
-            index.columns;
+          const columnsToSearch = columns
+            ? index.columns.filter(col => columns.includes(col))
+            : index.columns;
 
-          if (columnsToSearch.length === 0) continue;
+          if (columnsToSearch.length === 0) {
+            continue;
+          }
 
           const columnList = columnsToSearch.join(', ');
           const selectColumns = columnsToSearch.map(col => `${col}`).join(', ');
@@ -216,13 +220,9 @@ export class DatabaseService {
 
       searchParams.push(limit, offset);
 
-      const [results] = await connection.execute<RowDataPacket[]>(
-        combinedQuery,
-        searchParams
-      );
+      const [results] = await connection.execute<RowDataPacket[]>(combinedQuery, searchParams);
 
       return results;
-
     } finally {
       connection.release();
     }
@@ -259,7 +259,10 @@ export class DatabaseService {
 
           results.forEach(row => {
             const value = row[column];
-            if (typeof value === 'string' && value.toLowerCase().includes(partialQuery.toLowerCase())) {
+            if (
+              typeof value === 'string' &&
+              value.toLowerCase().includes(partialQuery.toLowerCase())
+            ) {
               suggestions.add(value);
             }
           });
@@ -267,7 +270,6 @@ export class DatabaseService {
       }
 
       return Array.from(suggestions).slice(0, limit);
-
     } finally {
       connection.release();
     }
@@ -276,20 +278,14 @@ export class DatabaseService {
   /**
    * Analyze query performance and suggest optimizations
    */
-  public async analyzeQueryPerformance(
-    connectionId: string,
-    query: string
-  ): Promise<any[]> {
+  public async analyzeQueryPerformance(connectionId: string, query: string): Promise<any[]> {
     const connection = await this.getConnection(connectionId);
 
     try {
       // Use EXPLAIN to analyze the query
-      const [explanation] = await connection.execute<RowDataPacket[]>(
-        `EXPLAIN ${query}`
-      );
+      const [explanation] = await connection.execute<RowDataPacket[]>(`EXPLAIN ${query}`);
 
       return explanation;
-
     } finally {
       connection.release();
     }

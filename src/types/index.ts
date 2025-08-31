@@ -61,7 +61,7 @@ export interface QuerySuggestion {
 }
 
 export interface TrendInsight {
-  period: 'day' | 'week' | 'month';
+  period: 'day' | 'week' | 'month' | '3months' | '6months' | 'year';
   topQueries: string[];
   queryVolume: number;
   avgResponseTime: number;
@@ -156,7 +156,7 @@ export interface ConnectionPoolConfig {
   acquireTimeout: number;
   timeout: number;
   reconnect: boolean;
-  ssl?: boolean;
+  ssl?: string | boolean;
 }
 
 // Configuration interfaces

@@ -1,6 +1,7 @@
 Create comprehensive tests for: $ARGUMENTS
 
 Test requirements for Altus 4:
+
 - Use Jest testing framework
 - Place tests adjacent to source files with `.test.ts` suffix
 - Mock external dependencies (MySQL, Redis, OpenAI API)

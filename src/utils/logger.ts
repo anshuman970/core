@@ -1,5 +1,5 @@
-import winston from 'winston';
 import { config } from '@/config';
+import winston from 'winston';
 
 const logLevel = process.env.LOG_LEVEL || 'info';
 
@@ -29,19 +29,21 @@ export const logger = winston.createLogger({
     }),
 
     // File transport for production
-    ...(config.environment === 'production' ? [
-      new winston.transports.File({
-        filename: 'logs/error.log',
-        level: 'error',
-        maxsize: 5242880, // 5MB
-        maxFiles: 5,
-      }),
-      new winston.transports.File({
-        filename: 'logs/combined.log',
-        maxsize: 5242880, // 5MB
-        maxFiles: 5,
-      }),
-    ] : []),
+    ...(config.environment === 'production'
+      ? [
+        new winston.transports.File({
+          filename: 'logs/error.log',
+          level: 'error',
+          maxsize: 5242880, // 5MB
+          maxFiles: 5,
+        }),
+        new winston.transports.File({
+          filename: 'logs/combined.log',
+          maxsize: 5242880, // 5MB
+          maxFiles: 5,
+        }),
+      ]
+      : []),
   ],
 });
 
@@ -98,7 +100,6 @@ export class EncryptionUtil {
    */
   public static decrypt(encryptedText: string): string {
     const parts = encryptedText.split(':');
-    const iv = Buffer.from(parts[0], 'hex');
     const authTag = Buffer.from(parts[1], 'hex');
     const encrypted = parts[2];
 

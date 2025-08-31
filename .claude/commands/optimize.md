@@ -1,6 +1,7 @@
 Optimize performance for: $ARGUMENTS
 
 Performance optimization for Altus 4:
+
 - Analyze database query performance and indexing
 - Review connection pooling configuration
 - Optimize Redis caching strategies

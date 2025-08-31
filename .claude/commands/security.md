@@ -1,6 +1,7 @@
 Perform security audit for: $ARGUMENTS
 
 Security audit checklist for Altus 4:
+
 - Check for SQL injection vulnerabilities
 - Verify input validation and sanitization
 - Review authentication and authorization flows

@@ -2,12 +2,7 @@
   "_comment": "Copy this to settings.local.json for personal preferences (git-ignored)",
 
   "permissions": {
-    "allow": [
-      "Read(~/Documents/**)",
-      "Read(~/Desktop/**)",
-      "Bash(code *)",
-      "Bash(open *)"
-    ]
+    "allow": ["Read(~/Documents/**)", "Read(~/Desktop/**)", "Bash(code *)", "Bash(open *)"]
   },
 
   "env": {
