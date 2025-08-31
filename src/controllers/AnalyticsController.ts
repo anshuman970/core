@@ -1,12 +1,26 @@
+/**
+ * AnalyticsController
+ *
+ * Handles analytics operations such as retrieving search trends, insights, and statistics for users.
+ * Integrates with CacheService and AIService for analytics and insights.
+ * Manages its own database connection for direct queries.
+ *
+ * Usage:
+ *   - Instantiate and use getSearchTrends() to retrieve user analytics
+ *   - Use other methods for advanced analytics and insights
+ */
+import { config } from '@/config';
+import { AIService } from '@/services/AIService';
+import { CacheService } from '@/services/CacheService';
+import type { AIInsight, SearchAnalytics, TrendInsight } from '@/types';
+import { logger } from '@/utils/logger';
 import type { RowDataPacket } from 'mysql2/promise';
 import { createConnection } from 'mysql2/promise';
-import { logger } from '@/utils/logger';
-import { config } from '@/config';
-import { CacheService } from '@/services/CacheService';
-import { AIService } from '@/services/AIService';
-import type { AIInsight, SearchAnalytics, TrendInsight } from '@/types';
 
 export class AnalyticsController {
+  /**
+   * MySQL connection promise for analytics database operations.
+   */
   private connection = createConnection({
     host: config.database.host,
     port: config.database.port,
@@ -15,15 +29,29 @@ export class AnalyticsController {
     database: config.database.database,
   });
 
+  /**
+   * CacheService instance for analytics caching and statistics.
+   */
   private cacheService: CacheService;
+
+  /**
+   * AIService instance for generating insights and advanced analytics.
+   */
   private aiService: AIService;
 
+  /**
+   * Initialize the AnalyticsController and its dependencies.
+   */
   constructor() {
     this.cacheService = new CacheService();
     this.aiService = new AIService();
     this.initializeConnection();
   }
 
+  /**
+   * Establish and test the database connection for analytics operations.
+   * Logs success or failure.
+   */
   private async initializeConnection(): Promise<void> {
     try {
       const conn = await this.connection;
@@ -35,7 +63,12 @@ export class AnalyticsController {
   }
 
   /**
-   * Get search trends for a user
+   * Get search trends for a user over a specified period.
+   * Aggregates top queries, query volume, response time, and popular categories.
+   *
+   * @param userId - ID of the user
+   * @param params - Object containing startDate, endDate, and period
+   * @returns Array of TrendInsight objects
    */
   public async getSearchTrends(
     userId: string,

@@ -1,12 +1,32 @@
-import Redis from 'ioredis';
-import { logger } from '@/utils/logger';
+/**
+ * CacheService
+ *
+ * Manages connection to Redis cache, providing methods for caching, analytics, and event handling.
+ * Handles connection lifecycle, error management, and cache availability checks.
+ *
+ * Usage:
+ *   - Instantiate and use isAvailable() to check cache status
+ *   - Use get/set methods to interact with Redis cache
+ */
 import { config } from '@/config';
 import type { SearchAnalytics } from '@/types';
+import { logger } from '@/utils/logger';
+import Redis from 'ioredis';
 
 export class CacheService {
+  /**
+   * Redis client instance for cache operations.
+   */
   private redis: Redis;
+
+  /**
+   * Indicates whether the Redis connection is currently active.
+   */
   private isConnected: boolean = false;
 
+  /**
+   * Create a new CacheService instance and initialize Redis connection.
+   */
   constructor() {
     this.redis = new Redis({
       host: config.redis.host,
@@ -19,6 +39,10 @@ export class CacheService {
     this.connect();
   }
 
+  /**
+   * Set up Redis event handlers for connection, error, and reconnect events.
+   * Updates isConnected and logs events.
+   */
   private setupEventHandlers(): void {
     this.redis.on('connect', () => {
       this.isConnected = true;
@@ -40,6 +64,10 @@ export class CacheService {
     });
   }
 
+  /**
+   * Establish connection to Redis server.
+   * Logs errors if connection fails.
+   */
   private async connect(): Promise<void> {
     try {
       await this.redis.connect();
@@ -49,14 +77,19 @@ export class CacheService {
   }
 
   /**
-   * Check if cache is available
+   * Check if cache is available and connected.
+   *
+   * @returns true if Redis connection is active
    */
   public isAvailable(): boolean {
     return this.isConnected;
   }
 
   /**
-   * Get value from cache
+   * Get value from cache by key.
+   *
+   * @param key - Cache key
+   * @returns Cached value or null if not found
    */
   public async get<T>(key: string): Promise<T | null> {
     if (!this.isAvailable()) {

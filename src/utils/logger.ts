@@ -1,8 +1,23 @@
+/**
+ * Logger Utility
+ *
+ * Provides a configured Winston logger for application-wide logging.
+ * Supports console logging for development and file logging for production.
+ * Automatically creates logs directory if needed.
+ *
+ * Usage:
+ *   - Use logger.info, logger.error, etc. for structured logging
+ */
 import { config } from '@/config';
 import winston from 'winston';
 
 const logLevel = process.env.LOG_LEVEL || 'info';
 
+/**
+ * Winston logger instance configured for Altus4 application.
+ * Includes timestamp, error stack, JSON formatting, and colorization.
+ * Logs to console in development and to files in production.
+ */
 export const logger = winston.createLogger({
   level: logLevel,
   format: winston.format.combine(

@@ -1,16 +1,37 @@
-import { logger } from '@/utils/logger';
+/**
+ * AuthController
+ *
+ * Handles user authentication operations such as registration, login, and profile management.
+ * Integrates with UserService for user-related database operations.
+ *
+ * Usage:
+ *   - Instantiate and use register() for user registration
+ *   - Use login() for authentication
+ */
 import { UserService } from '@/services/UserService';
 import type { User } from '@/types';
+import { logger } from '@/utils/logger';
 
 export class AuthController {
+  /**
+   * UserService instance for user registration and authentication.
+   */
   private userService: UserService;
 
+  /**
+   * Initialize the AuthController and its dependencies.
+   */
   constructor() {
     this.userService = new UserService();
   }
 
   /**
-   * Register a new user
+   * Register a new user.
+   * Validates input and delegates to UserService for database operations.
+   *
+   * @param userData - Object containing email, password, name, and optional role
+   * @returns Object with created user and JWT token
+   * @throws Error if validation fails or registration fails
    */
   public async register(userData: {
     email: string;
@@ -50,7 +71,12 @@ export class AuthController {
   }
 
   /**
-   * Authenticate user login
+   * Authenticate user login.
+   * Validates input and delegates to UserService for authentication.
+   *
+   * @param credentials - Object containing email and password
+   * @returns Object with authenticated user and JWT token
+   * @throws Error if authentication fails
    */
   public async login(credentials: {
     email: string;

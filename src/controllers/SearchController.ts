@@ -1,8 +1,17 @@
-import { logger } from '@/utils/logger';
-import { SearchService } from '@/services/SearchService';
-import { DatabaseService } from '@/services/DatabaseService';
+/**
+ * SearchController
+ *
+ * Handles search operations, suggestions, and analytics for user queries.
+ * Integrates with SearchService, DatabaseService, AIService, and CacheService.
+ *
+ * Usage:
+ *   - Instantiate and use executeSearch() to perform searches
+ *   - Use getSearchSuggestions() for query suggestions
+ */
 import { AIService } from '@/services/AIService';
 import { CacheService } from '@/services/CacheService';
+import { DatabaseService } from '@/services/DatabaseService';
+import { SearchService } from '@/services/SearchService';
 import type {
   OptimizationSuggestion,
   QuerySuggestion,
@@ -11,13 +20,32 @@ import type {
   SearchResponse,
   TrendInsight,
 } from '@/types';
+import { logger } from '@/utils/logger';
 
 export class SearchController {
+  /**
+   * SearchService instance for executing searches and aggregating results.
+   */
   private searchService: SearchService;
+
+  /**
+   * DatabaseService instance for database operations.
+   */
   private databaseService: DatabaseService;
+
+  /**
+   * AIService instance for query optimization and suggestions.
+   */
   private aiService: AIService;
+
+  /**
+   * CacheService instance for caching search results and analytics.
+   */
   private cacheService: CacheService;
 
+  /**
+   * Initialize the SearchController and its dependencies.
+   */
   constructor() {
     this.databaseService = new DatabaseService();
     this.aiService = new AIService();
@@ -26,7 +54,12 @@ export class SearchController {
   }
 
   /**
-   * Execute a comprehensive search
+   * Execute a comprehensive search for a user request.
+   * Logs the request and delegates to SearchService.
+   *
+   * @param request - SearchRequest object containing query and options
+   * @returns SearchResponse with aggregated results
+   * @throws Error if search execution fails
    */
   public async executeSearch(request: SearchRequest): Promise<SearchResponse> {
     logger.info(`Search request from user ${request.userId}: ${request.query}`);
@@ -40,7 +73,11 @@ export class SearchController {
   }
 
   /**
-   * Get search suggestions
+   * Get search suggestions for a query.
+   * Combines AI-powered and database-based suggestions.
+   *
+   * @param params - Object containing query, databases, tables, and userId
+   * @returns Array of QuerySuggestion objects
    */
   public async getSearchSuggestions(params: {
     query: string;

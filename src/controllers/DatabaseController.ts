@@ -1,14 +1,32 @@
-import { v4 as uuidv4 } from 'uuid';
-import type { RowDataPacket } from 'mysql2/promise';
-import { createConnection } from 'mysql2/promise';
-import { logger } from '@/utils/logger';
+/**
+ * DatabaseController
+ *
+ * Handles database connection management, schema retrieval, and metadata operations for users.
+ * Integrates with DatabaseService for connection pooling and query execution.
+ * Manages its own database connection for direct queries and encryption utilities.
+ *
+ * Usage:
+ *   - Instantiate and use getUserConnections() to retrieve user database connections
+ *   - Use other methods for schema and metadata management
+ */
 import { config } from '@/config';
 import { DatabaseService } from '@/services/DatabaseService';
 import type { DatabaseConnection, TableSchema } from '@/types';
 import { EncryptionUtil } from '@/utils/encryption';
+import { logger } from '@/utils/logger';
+import type { RowDataPacket } from 'mysql2/promise';
+import { createConnection } from 'mysql2/promise';
+import { v4 as uuidv4 } from 'uuid';
 
 export class DatabaseController {
+  /**
+   * DatabaseService instance for connection pooling and query execution.
+   */
   private databaseService: DatabaseService;
+
+  /**
+   * MySQL connection promise for direct database operations.
+   */
   private connection = createConnection({
     host: config.database.host,
     port: config.database.port,
@@ -17,11 +35,18 @@ export class DatabaseController {
     database: config.database.database,
   });
 
+  /**
+   * Initialize the DatabaseController and its dependencies.
+   */
   constructor() {
     this.databaseService = new DatabaseService();
     this.initializeConnection();
   }
 
+  /**
+   * Establish and test the database connection for user operations.
+   * Logs success or failure.
+   */
   private async initializeConnection(): Promise<void> {
     try {
       const conn = await this.connection;
@@ -33,7 +58,11 @@ export class DatabaseController {
   }
 
   /**
-   * Get all database connections for a user
+   * Get all database connections for a user.
+   * Queries the database and returns sanitized connection objects.
+   *
+   * @param userId - ID of the user
+   * @returns Array of DatabaseConnection objects
    */
   public async getUserConnections(userId: string): Promise<DatabaseConnection[]> {
     try {

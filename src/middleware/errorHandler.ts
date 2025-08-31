@@ -1,8 +1,21 @@
+/**
+ * Error Handler Middleware
+ *
+ * Provides Express middleware for centralized error handling and a custom AppError class.
+ * Handles operational errors, validation errors, JWT errors, and database errors.
+ *
+ * Usage:
+ *   - Use AppError to throw custom errors with status codes and codes
+ *   - Use errorHandler as the last middleware to handle all errors
+ */
 import { config } from '@/config';
 import type { ApiResponse } from '@/types';
 import { logger } from '@/utils/logger';
 import type { NextFunction, Request, Response } from 'express';
 
+/**
+ * Custom error class for operational errors.
+ */
 export class AppError extends Error {
   public statusCode: number;
   public code: string;
@@ -18,6 +31,11 @@ export class AppError extends Error {
   }
 }
 
+/**
+ * Express error handler middleware.
+ * Handles AppError, validation errors, JWT errors, and database errors.
+ * Responds with appropriate status code and error message.
+ */
 export const errorHandler = (
   error: Error | AppError,
   req: Request,

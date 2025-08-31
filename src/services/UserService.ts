@@ -1,13 +1,26 @@
-import type { RowDataPacket } from 'mysql2/promise';
-import { createConnection } from 'mysql2/promise';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-import { logger } from '@/utils/logger';
+/**
+ * UserService
+ *
+ * Manages user registration, authentication, and user-related database operations.
+ * Handles password hashing, JWT token generation, and user lookup.
+ *
+ * Usage:
+ *   - Instantiate and use registerUser() to create new users
+ *   - Use authentication methods for login and token management
+ */
 import { config } from '@/config';
 import type { User } from '@/types';
+import { logger } from '@/utils/logger';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import type { RowDataPacket } from 'mysql2/promise';
+import { createConnection } from 'mysql2/promise';
+import { v4 as uuidv4 } from 'uuid';
 
 export class UserService {
+  /**
+   * MySQL connection promise for user database operations.
+   */
   private connection = createConnection({
     host: config.database.host,
     port: config.database.port,
@@ -16,10 +29,17 @@ export class UserService {
     database: config.database.database,
   });
 
+  /**
+   * Initialize the UserService and test the database connection.
+   */
   constructor() {
     this.initializeConnection();
   }
 
+  /**
+   * Establish and test the database connection for user operations.
+   * Logs success or failure.
+   */
   private async initializeConnection(): Promise<void> {
     try {
       const conn = await this.connection;
@@ -31,7 +51,12 @@ export class UserService {
   }
 
   /**
-   * Register a new user
+   * Register a new user in the database.
+   * Checks for existing user, hashes password, creates user record, and returns JWT token.
+   *
+   * @param userData - Object containing email, password, name, and optional role
+   * @returns Object with created user and JWT token
+   * @throws Error if user already exists or registration fails
    */
   public async registerUser(userData: {
     email: string;
@@ -52,10 +77,10 @@ export class UserService {
         throw new Error('User with this email already exists');
       }
 
-      // Hash password
+      // Hash password securely
       const hashedPassword = await bcrypt.hash(userData.password, 12);
 
-      // Create user
+      // Create user record with UUID and current timestamp
       const userId = uuidv4();
       const now = new Date();
 

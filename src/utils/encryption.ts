@@ -1,3 +1,13 @@
+/**
+ * Encryption Utilities
+ *
+ * Provides static methods for password hashing, comparison, encryption, and decryption of sensitive data.
+ * Uses bcrypt for password security and AES-GCM for data encryption.
+ *
+ * Usage:
+ *   - Use hashPassword and comparePassword for user authentication
+ *   - Use encrypt and decrypt for sensitive data storage
+ */
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 
@@ -6,7 +16,10 @@ const ALGORITHM = 'aes-256-gcm';
 
 export class EncryptionUtil {
   /**
-   * Hash password using bcrypt
+   * Hash password using bcrypt.
+   *
+   * @param password - Plain text password
+   * @returns Hashed password string
    */
   public static async hashPassword(password: string): Promise<string> {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
@@ -14,14 +27,21 @@ export class EncryptionUtil {
   }
 
   /**
-   * Compare password with hash
+   * Compare password with hash using bcrypt.
+   *
+   * @param password - Plain text password
+   * @param hash - Hashed password
+   * @returns True if match, false otherwise
    */
   public static async comparePassword(password: string, hash: string): Promise<boolean> {
     return await bcrypt.compare(password, hash);
   }
 
   /**
-   * Encrypt sensitive data (like database credentials)
+   * Encrypt sensitive data (e.g., database credentials) using AES-GCM.
+   *
+   * @param text - Plain text to encrypt
+   * @returns Encrypted string with IV and auth tag
    */
   public static encrypt(text: string): string {
     try {
@@ -41,7 +61,10 @@ export class EncryptionUtil {
   }
 
   /**
-   * Decrypt sensitive data
+   * Decrypt sensitive data using AES-GCM.
+   *
+   * @param encryptedText - Encrypted string with IV and auth tag
+   * @returns Decrypted plain text
    */
   public static decrypt(encryptedText: string): string {
     try {

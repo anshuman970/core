@@ -1,3 +1,12 @@
+/**
+ * Rate Limiting Middleware
+ *
+ * Provides Express middleware for request rate limiting using Redis and rate-limiter-flexible.
+ * Configures different rate limiters for general, authentication, and search endpoints.
+ *
+ * Usage:
+ *   - Use rateLimiter to protect endpoints from abuse and excessive requests
+ */
 import { config } from '@/config';
 import type { ApiResponse } from '@/types';
 import { logger } from '@/utils/logger';
@@ -13,7 +22,7 @@ const redis = new Redis({
   lazyConnect: true,
 });
 
-// Redis connection event handlers
+// Redis connection event handlers for logging
 redis.on('error', error => {
   logger.error('Rate limiter Redis error:', error);
 });
@@ -22,7 +31,7 @@ redis.on('connect', () => {
   logger.info('Rate limiter Redis connected');
 });
 
-// Create rate limiter instance
+// General rate limiter instance
 const rateLimiterInstance = new RateLimiterRedis({
   storeClient: redis,
   keyPrefix: 'altus4_rl',
@@ -31,7 +40,7 @@ const rateLimiterInstance = new RateLimiterRedis({
   blockDuration: Math.floor(config.rateLimit.windowMs / 1000), // Block for duration in seconds
 });
 
-// More strict rate limiter for auth endpoints
+// More strict rate limiter for authentication endpoints
 const authRateLimiter = new RateLimiterRedis({
   storeClient: redis,
   keyPrefix: 'altus4_auth_rl',
@@ -49,6 +58,10 @@ const searchRateLimiter = new RateLimiterRedis({
   blockDuration: 300, // Block for 5 minutes
 });
 
+/**
+ * Middleware to apply rate limiting based on endpoint type.
+ * Responds with 429 if rate limit is exceeded.
+ */
 export const rateLimiter = async (
   req: Request,
   res: Response,

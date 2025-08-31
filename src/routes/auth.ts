@@ -1,15 +1,24 @@
-import { Router } from 'express';
-import { z } from 'zod';
+/**
+ * Authentication Routes
+ *
+ * Defines endpoints for user registration, login, profile updates, and password changes.
+ * Uses Zod schemas for request validation and delegates logic to AuthController.
+ *
+ * Usage:
+ *   - Mount this router at /api/v1/auth in the main server
+ */
+import { AuthController } from '@/controllers/AuthController';
 import type { AuthenticatedRequest } from '@/middleware/auth';
 import { authenticate } from '@/middleware/auth';
 import { validateRequest } from '@/middleware/validation';
-import { AuthController } from '@/controllers/AuthController';
 import type { ApiResponse, User } from '@/types';
+import { Router } from 'express';
+import { z } from 'zod';
 
 const router = Router();
 const authController = new AuthController();
 
-// Validation schemas
+// Validation schemas for registration, login, profile update, and password change
 const registerSchema = z.object({
   email: z.string().email('Invalid email format').toLowerCase(),
   password: z.string().min(8, 'Password must be at least 8 characters long'),
@@ -35,6 +44,7 @@ const changePasswordSchema = z.object({
 /**
  * POST /api/v1/auth/register
  * Register a new user
+ * Validates request body and delegates to AuthController.register()
  */
 router.post('/register', validateRequest({ body: registerSchema }), async (req, res) => {
   try {

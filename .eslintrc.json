@@ -16,13 +16,11 @@
   "plugins": ["@typescript-eslint", "prettier", "unused-imports"],
   "rules": {
     "prettier/prettier": "error",
-    // Auto-fixable JavaScript/TypeScript rules
     "prefer-const": "error",
     "no-var": "error",
     "curly": ["error", "all"],
     "eqeqeq": ["error", "always"],
     "no-console": "warn",
-    // TypeScript specific auto-fixable rules
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "error",
@@ -39,7 +37,6 @@
         "fixStyle": "separate-type-imports"
       }
     ],
-    // Code quality (auto-fixable)
     "object-shorthand": "error",
     "prefer-template": "error",
     "prefer-arrow-callback": "error",
@@ -50,7 +47,6 @@
         "object": true
       }
     ],
-    // Import organization (auto-fixable with plugin)
     "sort-imports": [
       "error",
       {

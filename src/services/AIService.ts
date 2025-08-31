@@ -1,3 +1,13 @@
+/**
+ * AIService
+ *
+ * Integrates with OpenAI to provide AI-powered features such as query optimization, suggestions, and insights.
+ * Handles initialization, availability checks, and communication with the OpenAI API.
+ *
+ * Usage:
+ *   - Instantiate and use isAvailable() to check if AI features are enabled
+ *   - Use processSearchQuery() to optimize search queries using AI
+ */
 import { config } from '@/config';
 import type {
   AIInsight,
@@ -10,13 +20,27 @@ import { logger } from '@/utils/logger';
 import { OpenAI } from 'openai';
 
 export class AIService {
+  /**
+   * OpenAI client instance, or null if not initialized.
+   */
   private openai: OpenAI | null = null;
+
+  /**
+   * Indicates whether AI features are enabled and available.
+   */
   private isEnabled: boolean = false;
 
+  /**
+   * Create a new AIService instance and initialize OpenAI client.
+   */
   constructor() {
     this.initializeOpenAI();
   }
 
+  /**
+   * Initialize the OpenAI client using configuration.
+   * Sets isEnabled to true if successful, false otherwise.
+   */
   private initializeOpenAI(): void {
     try {
       if (config.openai.apiKey && config.openai.apiKey.startsWith('sk-')) {
@@ -36,14 +60,19 @@ export class AIService {
   }
 
   /**
-   * Check if AI service is available
+   * Check if AI service is available and initialized.
+   *
+   * @returns true if AI features are enabled and OpenAI client is ready
    */
   public isAvailable(): boolean {
     return this.isEnabled && this.openai !== null;
   }
 
   /**
-   * Process and optimize a search query using AI
+   * Process and optimize a search query using AI.
+   *
+   * @param query - The search query to optimize
+   * @returns An object containing the optimized query and context
    */
   public async processSearchQuery(query: string): Promise<{
     optimizedQuery: string;
@@ -54,6 +83,7 @@ export class AIService {
     }
 
     try {
+      // Send the query to OpenAI for optimization
       const completion = await this.openai!.chat.completions.create({
         model: config.openai.model,
         messages: [

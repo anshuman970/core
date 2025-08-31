@@ -1,8 +1,21 @@
+/**
+ * Authentication Middleware
+ *
+ * Provides Express middleware for JWT authentication and role-based access control.
+ * Adds user information to the request object if authentication succeeds.
+ *
+ * Usage:
+ *   - Use authenticate to protect routes and extract user info from JWT
+ *   - Use requireRole to restrict access based on user role
+ */
 import { config } from '@/config';
 import type { ApiResponse } from '@/types';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
+/**
+ * Extends Express Request to include authenticated user info.
+ */
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
@@ -12,6 +25,11 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
+/**
+ * Middleware to authenticate requests using JWT.
+ * Adds user info to req.user if token is valid.
+ * Responds with 401 if token is missing or invalid.
+ */
 export const authenticate = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -53,6 +71,12 @@ export const authenticate = async (
   }
 };
 
+/**
+ * Middleware to require a specific user role for access.
+ * Responds with 401 if user is not authenticated or role does not match.
+ *
+ * @param role - Required user role ('admin' or 'user')
+ */
 export const requireRole = (role: 'admin' | 'user') => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {

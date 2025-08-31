@@ -1,26 +1,48 @@
-// src/index.ts
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import dotenv from 'dotenv';
-import { createServer } from 'http';
-import { logger } from '@/utils/logger';
+/**
+ * Entry point for the Altus4 application.
+ *
+ * Sets up the Express server, middleware, routes, and error handling.
+ * Loads environment variables and configures security, logging, and health checks.
+ *
+ * Usage:
+ *   - Instantiate AltusServer to start the application
+ */
 import { config } from '@/config';
 import { errorHandler } from '@/middleware/errorHandler';
-import { requestLogger } from '@/middleware/requestLogger';
 import { rateLimiter } from '@/middleware/rateLimiter';
-import { authRoutes } from '@/routes/auth';
-import { searchRoutes } from '@/routes/search';
-import { databaseRoutes } from '@/routes/database';
+import { requestLogger } from '@/middleware/requestLogger';
 import { analyticsRoutes } from '@/routes/analytics';
+import { authRoutes } from '@/routes/auth';
+import { databaseRoutes } from '@/routes/database';
+import { searchRoutes } from '@/routes/search';
+import { logger } from '@/utils/logger';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import helmet from 'helmet';
+import { createServer } from 'http';
 
-// Load environment variables
+// Load environment variables from .env file
 dotenv.config();
 
+/**
+ * Main server class for Altus4.
+ * Handles initialization, middleware, routes, and error handling.
+ */
 class AltusServer {
+  /**
+   * Express application instance.
+   */
   private app: express.Application;
+
+  /**
+   * HTTP server instance.
+   */
   private server: any;
 
+  /**
+   * Initialize the server, middleware, routes, and error handling.
+   */
   constructor() {
     this.app = express();
     this.setupMiddleware();
@@ -28,6 +50,9 @@ class AltusServer {
     this.setupErrorHandling();
   }
 
+  /**
+   * Set up security, CORS, request parsing, logging, rate limiting, and health check endpoint.
+   */
   private setupMiddleware(): void {
     // Security middleware
     this.app.use(helmet());
@@ -46,7 +71,7 @@ class AltusServer {
     this.app.use(requestLogger);
     this.app.use(rateLimiter);
 
-    // Health check endpoint
+    // Health check endpoint for monitoring
     this.app.get('/health', (req, res) => {
       res.json({
         status: 'healthy',
@@ -57,6 +82,9 @@ class AltusServer {
     });
   }
 
+  /**
+   * Set up API routes for analytics, authentication, database, and search.
+   */
   private setupRoutes(): void {
     const apiV1 = express.Router();
 

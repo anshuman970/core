@@ -1,15 +1,24 @@
-import { Router } from 'express';
-import { z } from 'zod';
+/**
+ * Database Routes
+ *
+ * Defines endpoints for managing user database connections, schemas, and metadata.
+ * Uses Zod schemas for request validation and delegates logic to DatabaseController.
+ *
+ * Usage:
+ *   - Mount this router at /api/v1/databases in the main server
+ */
+import { DatabaseController } from '@/controllers/DatabaseController';
 import type { AuthenticatedRequest } from '@/middleware/auth';
 import { authenticate } from '@/middleware/auth';
 import { validateRequest } from '@/middleware/validation';
-import { DatabaseController } from '@/controllers/DatabaseController';
 import type { ApiResponse, DatabaseConnection, TableSchema } from '@/types';
+import { Router } from 'express';
+import { z } from 'zod';
 
 const router = Router();
 const databaseController = new DatabaseController();
 
-// Validation schemas
+// Validation schemas for adding and updating database connections
 const addConnectionSchema = z.object({
   name: z.string().min(1, 'Connection name is required').max(255),
   host: z.string().min(1, 'Host is required'),
@@ -33,6 +42,7 @@ const updateConnectionSchema = z.object({
 /**
  * GET /api/v1/databases
  * Get all user's database connections
+ * Requires authentication and delegates to DatabaseController.getUserConnections()
  */
 router.get('/', authenticate, async (req: AuthenticatedRequest, res) => {
   try {

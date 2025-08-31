@@ -1,15 +1,24 @@
-import { Router } from 'express';
-import { z } from 'zod';
+/**
+ * Search Routes
+ *
+ * Defines endpoints for executing searches, getting suggestions, and analyzing queries.
+ * Uses Zod schemas for request validation and delegates logic to SearchController.
+ *
+ * Usage:
+ *   - Mount this router at /api/v1/search in the main server
+ */
+import { SearchController } from '@/controllers/SearchController';
 import type { AuthenticatedRequest } from '@/middleware/auth';
 import { authenticate } from '@/middleware/auth';
 import { validateRequest } from '@/middleware/validation';
-import { SearchController } from '@/controllers/SearchController';
 import type { ApiResponse, SearchRequest, SearchResponse } from '@/types';
+import { Router } from 'express';
+import { z } from 'zod';
 
 const router = Router();
 const searchController = new SearchController();
 
-// Search request validation schema
+// Validation schemas for search, suggestions, and query analysis
 const searchRequestSchema = z.object({
   query: z.string().min(1, 'Query cannot be empty').max(500, 'Query too long'),
   databases: z.array(z.string()).optional().default([]),
@@ -35,6 +44,7 @@ const analyzeQuerySchema = z.object({
 /**
  * POST /api/v1/search
  * Execute a search across specified databases
+ * Validates request body and delegates to SearchController.executeSearch()
  */
 router.post(
   '/',

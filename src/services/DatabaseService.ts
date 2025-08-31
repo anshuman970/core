@@ -1,19 +1,50 @@
+/**
+ * DatabaseService
+ *
+ * Manages connections to multiple MySQL databases using connection pools.
+ * Provides methods to add, remove, and interact with database connections.
+ * Handles connection pooling, timeouts, and SSL configuration.
+ *
+ * Usage:
+ *   - Add a new connection with addConnection()
+ *   - Remove a connection with removeConnection()
+ *   - Interact with databases using other service methods
+ */
+import type { ColumnInfo, DatabaseConnection, FullTextIndex, TableSchema } from '@/types';
+import { logger } from '@/utils/logger';
 import type { Pool, PoolConnection, RowDataPacket } from 'mysql2/promise';
 import mysql from 'mysql2/promise';
-import { logger } from '@/utils/logger';
-import type { ColumnInfo, DatabaseConnection, FullTextIndex, TableSchema } from '@/types';
 
 export class DatabaseService {
+  /**
+   * Map of database connection pools, keyed by connection ID.
+   */
   private connections: Map<string, Pool> = new Map();
-  private readonly maxConnections = 5; // Per database
-  private readonly acquireTimeout = 60000; // 60 seconds
-  private readonly connectionTimeout = 60000; // 60 seconds
 
   /**
-   * Add a new database connection to the pool
+   * Maximum number of connections per database pool.
+   */
+  private readonly maxConnections = 5;
+
+  /**
+   * Timeout (ms) for acquiring a connection from the pool.
+   */
+  private readonly acquireTimeout = 60000;
+
+  /**
+   * Timeout (ms) for establishing a new connection.
+   */
+  private readonly connectionTimeout = 60000;
+
+  /**
+   * Add a new database connection to the pool.
+   *
+   * @param dbConfig - Database connection configuration object
+   * @throws Error if connection fails
    */
   public async addConnection(dbConfig: DatabaseConnection): Promise<void> {
     try {
+      // Build pool configuration from dbConfig
       const poolConfig: any = {
         host: dbConfig.host,
         port: dbConfig.port,
@@ -26,20 +57,22 @@ export class DatabaseService {
         reconnect: true,
       };
 
-      // Add SSL configuration only if needed
+      // Add SSL configuration if specified
       if (dbConfig.ssl === true) {
-        poolConfig.ssl = 'Amazon RDS';
+        poolConfig.ssl = 'Amazon RDS'; // Use default Amazon RDS SSL
       } else if (typeof dbConfig.ssl === 'string') {
-        poolConfig.ssl = dbConfig.ssl;
+        poolConfig.ssl = dbConfig.ssl; // Use custom SSL string
       }
 
+      // Create a new connection pool
       const pool = mysql.createPool(poolConfig);
 
-      // Test the connection
+      // Test the connection by pinging the database
       const connection = await pool.getConnection();
       await connection.ping();
       connection.release();
 
+      // Store the pool in the connections map
       this.connections.set(dbConfig.id, pool);
       logger.info(`Database connection added: ${dbConfig.name} (${dbConfig.id})`);
     } catch (error) {
@@ -51,7 +84,9 @@ export class DatabaseService {
   }
 
   /**
-   * Remove a database connection from the pool
+   * Remove a database connection from the pool.
+   *
+   * @param connectionId - ID of the connection to remove
    */
   public async removeConnection(connectionId: string): Promise<void> {
     const pool = this.connections.get(connectionId);

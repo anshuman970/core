@@ -1,3 +1,13 @@
+/**
+ * SearchService
+ *
+ * Orchestrates search operations across multiple databases, integrating AI-powered query optimization and caching.
+ * Handles search requests, query suggestions, analytics, and result aggregation.
+ *
+ * Usage:
+ *   - Instantiate with DatabaseService, AIService, and CacheService
+ *   - Call search() to execute a search request
+ */
 import type {
   Category,
   OptimizationSuggestion,
@@ -13,10 +23,28 @@ import type { CacheService } from './CacheService';
 import type { DatabaseService } from './DatabaseService';
 
 export class SearchService {
+  /**
+   * Reference to the database service for executing queries.
+   */
   private databaseService: DatabaseService;
+
+  /**
+   * Reference to the AI service for query optimization and suggestions.
+   */
   private aiService: AIService;
+
+  /**
+   * Reference to the cache service for storing/retrieving search results.
+   */
   private cacheService: CacheService;
 
+  /**
+   * Create a new SearchService instance.
+   *
+   * @param databaseService - DatabaseService instance
+   * @param aiService - AIService instance
+   * @param cacheService - CacheService instance
+   */
   constructor(databaseService: DatabaseService, aiService: AIService, cacheService: CacheService) {
     this.databaseService = databaseService;
     this.aiService = aiService;
@@ -24,17 +52,21 @@ export class SearchService {
   }
 
   /**
-   * Execute a comprehensive search across specified databases
+   * Execute a comprehensive search across specified databases.
+   * Integrates caching and AI-powered query optimization.
+   *
+   * @param request - SearchRequest object containing query and options
+   * @returns SearchResponse with aggregated results
    */
   public async search(request: SearchRequest): Promise<SearchResponse> {
     const startTime = Date.now();
     logger.info(`Search request: ${request.query} by user ${request.userId}`);
 
     try {
-      // Generate cache key
+      // Generate a unique cache key for this request
       const cacheKey = this.generateCacheKey(request);
 
-      // Check cache first
+      // Check cache for existing results unless analytics are requested
       if (!request.includeAnalytics) {
         const cachedResult = await this.cacheService.get<SearchResponse>(cacheKey);
         if (cachedResult) {
@@ -43,7 +75,7 @@ export class SearchService {
         }
       }
 
-      // Process the search query with AI if semantic search is requested
+      // If semantic search is requested, optimize the query using AI
       let processedQuery = request.query;
 
       if (request.searchMode === 'semantic' && this.aiService.isAvailable()) {
@@ -52,7 +84,7 @@ export class SearchService {
         // Context could be used for future enhancements
       }
 
-      // Execute search across all specified databases
+      // Execute search on all specified databases in parallel
       const searchPromises = (request.databases || []).map(async dbId => {
         return this.executeSearchOnDatabase(dbId, processedQuery, request);
       });

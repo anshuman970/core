@@ -1,15 +1,24 @@
-import { Router } from 'express';
-import { z } from 'zod';
+/**
+ * Analytics Routes
+ *
+ * Defines endpoints for retrieving user analytics, search trends, and insights.
+ * Uses Zod schemas for request validation and delegates logic to AnalyticsController.
+ *
+ * Usage:
+ *   - Mount this router at /api/v1/analytics in the main server
+ */
+import { AnalyticsController } from '@/controllers/AnalyticsController';
 import type { AuthenticatedRequest } from '@/middleware/auth';
 import { authenticate, requireRole } from '@/middleware/auth';
 import { validateRequest } from '@/middleware/validation';
-import { AnalyticsController } from '@/controllers/AnalyticsController';
 import type { ApiResponse } from '@/types';
+import { Router } from 'express';
+import { z } from 'zod';
 
 const router = Router();
 const analyticsController = new AnalyticsController();
 
-// Validation schemas
+// Validation schemas for time range and analytics queries
 const timeRangeSchema = z.object({
   startDate: z
     .string()
@@ -31,6 +40,7 @@ const searchAnalyticsQuerySchema = z.object({
 /**
  * GET /api/v1/analytics/search-trends
  * Get user's search trends and insights
+ * Validates query params and delegates to AnalyticsController.getSearchTrends()
  */
 router.get(
   '/search-trends',

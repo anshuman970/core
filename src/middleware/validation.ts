@@ -1,8 +1,21 @@
+/**
+ * Request Validation Middleware
+ *
+ * Provides Express middleware for validating request body, query, and params using Zod schemas.
+ * Responds with 400 and detailed error information if validation fails.
+ *
+ * Usage:
+ *   - Use validateRequest to validate incoming requests for endpoints
+ */
+import type { ApiResponse } from '@/types';
 import type { NextFunction, Request, Response } from 'express';
 import type { ZodSchema } from 'zod';
 import { ZodError } from 'zod';
-import type { ApiResponse } from '@/types';
 
+/**
+ * Middleware to validate request body, query, and params using Zod schemas.
+ * Responds with 400 and error details if validation fails.
+ */
 export const validateRequest = (schema: {
   body?: ZodSchema;
   query?: ZodSchema;

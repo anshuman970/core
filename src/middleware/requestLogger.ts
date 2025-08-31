@@ -1,12 +1,25 @@
-import type { NextFunction, Request, Response } from 'express';
+/**
+ * Request Logging Middleware
+ *
+ * Provides Express middleware for logging incoming requests and outgoing responses.
+ * Adds a unique request ID to each request and logs metadata for monitoring and debugging.
+ *
+ * Usage:
+ *   - Use requestLogger to log requests and responses for all endpoints
+ */
 import { logger } from '@/utils/logger';
+import type { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Middleware to log incoming requests and outgoing responses.
+ * Adds a unique request ID and logs metadata except for health checks and static assets.
+ */
 export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const requestId = uuidv4();
   const startTime = Date.now();
 
-  // Add request ID to headers
+  // Add request ID to headers for traceability
   req.headers['x-request-id'] = requestId;
   res.setHeader('X-Request-ID', requestId);
 
@@ -15,7 +28,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
   const shouldSkip = skipPaths.some(path => req.url.includes(path));
 
   if (!shouldSkip) {
-    // Log request
+    // Log incoming request metadata
     logger.info('Incoming request:', {
       requestId,
       method: req.method,
@@ -28,7 +41,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
     });
   }
 
-  // Override res.json to log response
+  // Override res.json to log outgoing response metadata
   const originalJson = res.json;
   const originalSend = res.send;
   const originalEnd = res.end;
