@@ -1,0 +1,80 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(yarn *)",
+      "Bash(pnpm *)",
+      "Bash(git *)",
+      "Bash(docker *)",
+      "Bash(mysql *)",
+      "Bash(redis-cli *)",
+      "Bash(curl *)",
+      "Read(./src/**)",
+      "Read(./tests/**)",
+      "Read(./docs/**)",
+      "Read(./*.md)",
+      "Read(./*.json)",
+      "Read(./*.ts)",
+      "Read(./*.js)",
+      "Read(./.env.example)",
+      "Write(./src/**)",
+      "Write(./tests/**)",
+      "Write(./docs/**)",
+      "Write(./*.md)",
+      "Write(./*.json)",
+      "Write(./*.ts)",
+      "Write(./*.js)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./node_modules/**)",
+      "Read(./dist/**)",
+      "Read(./build/**)",
+      "Write(./.env)",
+      "Write(./.env.*)",
+      "Write(./secrets/**)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | bash)"
+    ]
+  },
+  "hooks": [
+    {
+      "matcher": "Write(./src/**/*.ts)",
+      "hooks": [
+        {
+          "type": "after",
+          "command": "npm run lint:fix -- $FILE",
+          "description": "Auto-fix TypeScript linting issues"
+        }
+      ]
+    },
+    {
+      "matcher": "Write(./src/**/*.ts)",
+      "hooks": [
+        {
+          "type": "after",
+          "command": "npm run build",
+          "description": "Type check after TypeScript changes"
+        }
+      ]
+    },
+    {
+      "matcher": "Write(./tests/**/*.test.ts)",
+      "hooks": [
+        {
+          "type": "after",
+          "command": "npm run test -- --testPathPattern=$FILE",
+          "description": "Run specific test file after changes"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "NODE_ENV": "development",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "_comment": "Copy this to settings.local.json for personal preferences (git-ignored)",
+
+  "permissions": {
+    "allow": [
+      "Read(~/Documents/**)",
+      "Read(~/Desktop/**)",
+      "Bash(code *)",
+      "Bash(open *)"
+    ]
+  },
+
+  "env": {
+    "PREFERRED_EDITOR": "code",
+    "CLAUDE_CODE_ENABLE_NOTIFICATIONS": "1",
+    "CLAUDE_CODE_AUTO_SAVE": "1"
+  },
+
+  "personalPreferences": {
+    "defaultModel": "claude-sonnet-4-20250514",
+    "enableVerboseLogging": false,
+    "autoRunTests": true,
+    "preferredTerminal": "iterm"
+  },
+
+  "hooks": [
+    {
+      "matcher": "Write(./src/**/*.ts)",
+      "hooks": [
+        {
+          "type": "after",
+          "command": "code $FILE",
+          "description": "Open modified TypeScript files in VS Code"
+        }
+      ]
+    }
+  ]
+}
