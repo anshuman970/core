@@ -20,28 +20,28 @@ Altus 4 follows a layered architecture pattern designed for scalability, maintai
 │  REST Endpoints, Authentication, Validation, Rate       │
 ```
 
-│                  Client Layer                           │
-│  Web UI, Mobile Apps, Third-party Integrations         │
+│ Client Layer │
+│ Web UI, Mobile Apps, Third-party Integrations │
 └─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
+│
+▼
 ┌─────────────────────────────────────────────────────────┐
-│                   API Layer                             │
-│  REST Endpoints, Authentication, Validation, Rate       │
-│  Limiting, Request/Response Transformation              │
+│ API Layer │
+│ REST Endpoints, Authentication, Validation, Rate │
+│ Limiting, Request/Response Transformation │
 └─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
+│
+▼
 ┌─────────────────────────────────────────────────────────┐
-│                 Service Layer                           │
-│  Business Logic, Orchestration, Error Handling         │
-│  SearchService, UserService, AIService, etc.           │
+│ Service Layer │
+│ Business Logic, Orchestration, Error Handling │
+│ SearchService, UserService, AIService, etc. │
 └─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
+│
+▼
 ┌─────────────────────────────────────────────────────────┐
-│                  Data Layer                             │
-│  MySQL Databases, Redis Cache, OpenAI API              │
+│ Data Layer │
+│ MySQL Databases, Redis Cache, OpenAI API │
 └─────────────────────────────────────────────────────────┘
 
 ```text
@@ -413,23 +413,23 @@ export const errorHandler = (
 ```
 
 Response with JWT + Refresh Token
-    ↓
+↓
 
-  ```typescript
-  logger.error('Request failed:', { error, request: req.body });
+```typescript
+logger.error('Request failed:', { error, request: req.body });
 
-  res.status(statusCode).json({
-    success: false,
-    error: {
-      code,
-      message: error.message,
-      details: error instanceof AppError ? error.details : undefined,
-    },
-    meta: {
-      timestamp: new Date().toISOString(),
-      requestId: req.headers['x-request-id'],
-    },
-  });
+res.status(statusCode).json({
+  success: false,
+  error: {
+    code,
+    message: error.message,
+    details: error instanceof AppError ? error.details : undefined,
+  },
+  meta: {
+    timestamp: new Date().toISOString(),
+    requestId: req.headers['x-request-id'],
+  },
+});
 };
 ```
 

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 // Mock dependencies first
 jest.mock('ioredis');
@@ -36,17 +36,22 @@ jest.mock('@/utils/logger', () => ({
 
 import { rateLimiter } from './rateLimiter';
 
-const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
-  ip: '127.0.0.1',
-  path: '/api/v1/test',
-  method: 'GET',
-  get: jest.fn().mockImplementation((header: string) => {
-    if (header === 'X-Request-ID') return 'test-request-id';
-    if (header === 'User-Agent') return 'test-user-agent';
-    return undefined;
-  }),
-  ...overrides,
-} as any);
+const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> =>
+  ({
+    ip: '127.0.0.1',
+    path: '/api/v1/test',
+    method: 'GET',
+    get: jest.fn().mockImplementation((header: string) => {
+      if (header === 'X-Request-ID') {
+        return 'test-request-id';
+      }
+      if (header === 'User-Agent') {
+        return 'test-user-agent';
+      }
+      return undefined;
+    }),
+    ...overrides,
+  }) as any;
 
 const mockResponse = (): Partial<Response> => {
   const res: Partial<Response> = {

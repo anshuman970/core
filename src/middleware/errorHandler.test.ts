@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 // Mock dependencies first
 jest.mock('@/config', () => ({
@@ -22,8 +22,12 @@ const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
   method: 'GET',
   ip: '127.0.0.1',
   get: jest.fn().mockImplementation((header: string) => {
-    if (header === 'User-Agent') return 'test-user-agent';
-    if (header === 'X-Request-ID') return 'test-request-id';
+    if (header === 'User-Agent') {
+      return 'test-user-agent';
+    }
+    if (header === 'X-Request-ID') {
+      return 'test-request-id';
+    }
     return undefined;
   }),
   ...overrides,
@@ -84,7 +88,7 @@ describe('Error Handler Middleware', () => {
     req = mockRequest();
     res = mockResponse();
     next = mockNext;
-    
+
     // Reset config mock
     jest.doMock('@/config', () => ({
       config: {
@@ -239,7 +243,7 @@ describe('Error Handler Middleware', () => {
 
   describe('Database Error Handling', () => {
     it('should handle table not found error', () => {
-      const error = new Error('ER_NO_SUCH_TABLE: Table \'users\' doesn\'t exist');
+      const error = new Error("ER_NO_SUCH_TABLE: Table 'users' doesn't exist");
 
       errorHandler(error, req as Request, res as Response, next);
 
@@ -250,7 +254,7 @@ describe('Error Handler Middleware', () => {
           code: 'DATABASE_ERROR',
           message: 'Database table not found',
           stack: expect.any(String),
-          details: 'ER_NO_SUCH_TABLE: Table \'users\' doesn\'t exist',
+          details: "ER_NO_SUCH_TABLE: Table 'users' doesn't exist",
         },
         meta: {
           timestamp: expect.any(Date),
@@ -336,7 +340,7 @@ describe('Error Handler Middleware', () => {
           environment: 'development',
         },
       }));
-      
+
       const error = new Error('Test error');
 
       errorHandler(error, req as Request, res as Response, next);

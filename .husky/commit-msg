@@ -1,0 +1,32 @@
+# Get the commit message
+commit_message=$(cat "$1")
+
+# Check if commit message follows conventional commit format
+if ! echo "$commit_message" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .{1,50}"; then
+    echo ""
+    echo "❌ Invalid commit message format!"
+    echo ""
+    echo "Please use conventional commits format:"
+    echo "  <type>[optional scope]: <description>"
+    echo ""
+    echo "Types:"
+    echo "  feat:     A new feature"
+    echo "  fix:      A bug fix"
+    echo "  docs:     Documentation changes"
+    echo "  style:    Code style changes (formatting, etc)"
+    echo "  refactor: Code refactoring"
+    echo "  perf:     Performance improvements"
+    echo "  test:     Adding or updating tests"
+    echo "  build:    Build system changes"
+    echo "  ci:       CI/CD changes"
+    echo "  chore:    Other changes"
+    echo ""
+    echo "Examples:"
+    echo "  feat: add user authentication"
+    echo "  fix(api): resolve database connection issue"
+    echo "  docs: update README with installation steps"
+    echo ""
+    exit 1
+fi
+
+echo "✅ Commit message format is valid!"

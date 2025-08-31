@@ -4,12 +4,10 @@ import { DatabaseService } from '@/services/DatabaseService';
 import { AIService } from '@/services/AIService';
 import { CacheService } from '@/services/CacheService';
 import type {
+  OptimizationSuggestion,
+  SearchAnalytics,
   SearchRequest,
   SearchResponse,
-  QuerySuggestion,
-  OptimizationSuggestion,
-  TrendInsight,
-  SearchAnalytics,
 } from '@/types';
 
 // Mock dependencies
@@ -62,11 +60,6 @@ describe('SearchController', () => {
     limit: 10,
   };
 
-  const mockQuerySuggestions: QuerySuggestion[] = [
-    { text: 'test query suggestion', score: 0.8, type: 'semantic' },
-    { text: 'popular query', score: 0.7, type: 'popular' },
-  ];
-
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -98,10 +91,16 @@ describe('SearchController', () => {
     } as any;
 
     // Setup service constructors
-    (SearchService as jest.MockedClass<typeof SearchService>).mockImplementation(() => mockSearchService);
-    (DatabaseService as jest.MockedClass<typeof DatabaseService>).mockImplementation(() => mockDatabaseService);
+    (SearchService as jest.MockedClass<typeof SearchService>).mockImplementation(
+      () => mockSearchService
+    );
+    (DatabaseService as jest.MockedClass<typeof DatabaseService>).mockImplementation(
+      () => mockDatabaseService
+    );
     (AIService as jest.MockedClass<typeof AIService>).mockImplementation(() => mockAIService);
-    (CacheService as jest.MockedClass<typeof CacheService>).mockImplementation(() => mockCacheService);
+    (CacheService as jest.MockedClass<typeof CacheService>).mockImplementation(
+      () => mockCacheService
+    );
 
     searchController = new SearchController();
   });
@@ -154,8 +153,10 @@ describe('SearchController', () => {
 
       expect(mockAIService.isAvailable).toHaveBeenCalled();
       expect(mockAIService.getQuerySuggestions).toHaveBeenCalledWith('test');
-      expect(mockDatabaseService.getSearchSuggestions).toHaveBeenCalledWith('db-1', 'test', ['users']);
-      
+      expect(mockDatabaseService.getSearchSuggestions).toHaveBeenCalledWith('db-1', 'test', [
+        'users',
+      ]);
+
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({ text: 'ai suggestion', score: 0.9, type: 'semantic' });
       expect(result[1]).toMatchObject({ text: 'database suggestion', score: 0.7, type: 'popular' });
@@ -264,14 +265,20 @@ describe('SearchController', () => {
       const result = await searchController.analyzeQuery(analyzeParams);
 
       expect(mockAIService.analyzeQuery).toHaveBeenCalledWith('SELECT * FROM users');
-      expect(mockDatabaseService.analyzeQueryPerformance).toHaveBeenCalledWith('db-1', 'SELECT * FROM users');
-      
+      expect(mockDatabaseService.analyzeQueryPerformance).toHaveBeenCalledWith(
+        'db-1',
+        'SELECT * FROM users'
+      );
+
       expect(result).toMatchObject({
         query: 'SELECT * FROM users',
         recommendations: ['Use specific columns'],
         optimization: mockOptimizations,
         performance: {
-          'db-1': [{ metric: 'execution_time', value: 100 }, { metric: 'index_usage', value: 'full_scan' }],
+          'db-1': [
+            { metric: 'execution_time', value: 100 },
+            { metric: 'index_usage', value: 'full_scan' },
+          ],
         },
       });
     });
@@ -349,7 +356,7 @@ describe('SearchController', () => {
       const result = await searchController.getUserTrends('user-123');
 
       expect(result).toHaveLength(2); // Week and month trends
-      
+
       // Check week trends
       expect(result[0]).toMatchObject({
         period: 'week',

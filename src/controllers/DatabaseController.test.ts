@@ -80,7 +80,7 @@ describe('DatabaseController', () => {
       encrypt: jest.fn().mockReturnValue('encrypted-password'),
       decrypt: jest.fn().mockReturnValue('decrypted-password'),
     } as any;
-    (EncryptionUtil as any) = mockEncryptionUtil;
+    Object.assign(EncryptionUtil, mockEncryptionUtil);
 
     databaseController = new DatabaseController();
   });
@@ -241,7 +241,7 @@ describe('DatabaseController', () => {
         .spyOn(databaseController, 'getConnection')
         .mockResolvedValue(mockDbConnection)
         .mockResolvedValueOnce(mockDbConnection); // First call in method
-      
+
       mockConnection.execute.mockResolvedValue([{ affectedRows: 1 }]);
 
       const result = await databaseController.updateConnection('user-123', 'conn-123', updates);

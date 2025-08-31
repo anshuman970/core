@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 const mockUuid = 'test-request-id-123';
 
@@ -17,20 +17,27 @@ jest.mock('@/utils/logger', () => ({
 
 import { requestLogger } from './requestLogger';
 
-const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
-  method: 'GET',
-  url: '/api/v1/test',
-  ip: '127.0.0.1',
-  connection: { remoteAddress: '192.168.1.1' } as any,
-  headers: {},
-  get: jest.fn().mockImplementation((header: string) => {
-    if (header === 'User-Agent') return 'test-user-agent';
-    if (header === 'Content-Length') return '100';
-    if (header === 'Content-Type') return 'application/json';
-    return undefined;
-  }),
-  ...overrides,
-} as any);
+const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> =>
+  ({
+    method: 'GET',
+    url: '/api/v1/test',
+    ip: '127.0.0.1',
+    connection: { remoteAddress: '192.168.1.1' } as any,
+    headers: {},
+    get: jest.fn().mockImplementation((header: string) => {
+      if (header === 'User-Agent') {
+        return 'test-user-agent';
+      }
+      if (header === 'Content-Length') {
+        return '100';
+      }
+      if (header === 'Content-Type') {
+        return 'application/json';
+      }
+      return undefined;
+    }),
+    ...overrides,
+  }) as any;
 
 const mockResponse = (): Partial<Response> => {
   const res: Partial<Response> = {
@@ -209,7 +216,7 @@ describe('Request Logger Middleware', () => {
   describe('Response JSON Logging', () => {
     it('should log outgoing JSON response', () => {
       const responseBody = { success: true, data: 'test' };
-      
+
       requestLogger(req as Request, res as Response, next);
 
       // Simulate response after some time
@@ -234,7 +241,7 @@ describe('Request Logger Middleware', () => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: 'Invalid input' },
       };
-      
+
       requestLogger(req as Request, res as Response, next);
       Date.now = jest.fn().mockReturnValue(1000075); // 75ms later
 
@@ -254,7 +261,7 @@ describe('Request Logger Middleware', () => {
     it('should not log JSON response for skipped paths', () => {
       req.url = '/health';
       const responseBody = { status: 'ok' };
-      
+
       requestLogger(req as Request, res as Response, next);
       res.json!(responseBody);
 
@@ -266,7 +273,7 @@ describe('Request Logger Middleware', () => {
   describe('Response Send Logging', () => {
     it('should log outgoing send response with string body', () => {
       const responseBody = 'Hello World';
-      
+
       requestLogger(req as Request, res as Response, next);
       Date.now = jest.fn().mockReturnValue(1000200); // 200ms later
 
@@ -283,7 +290,7 @@ describe('Request Logger Middleware', () => {
 
     it('should log outgoing send response with object body', () => {
       const responseBody = { message: 'Hello World' };
-      
+
       requestLogger(req as Request, res as Response, next);
       Date.now = jest.fn().mockReturnValue(1000100); // 100ms later
 
@@ -300,7 +307,7 @@ describe('Request Logger Middleware', () => {
 
     it('should not log send response for skipped paths', () => {
       req.url = '/favicon.ico';
-      
+
       requestLogger(req as Request, res as Response, next);
       res.send!('favicon content');
 
@@ -340,7 +347,7 @@ describe('Request Logger Middleware', () => {
 
     it('should not log request completion for skipped paths', () => {
       req.url = '/robots.txt';
-      
+
       requestLogger(req as Request, res as Response, next);
       res.end!();
 
@@ -354,7 +361,7 @@ describe('Request Logger Middleware', () => {
       const originalJson = jest.fn();
       const originalSend = jest.fn();
       const originalEnd = jest.fn();
-      
+
       res.json = originalJson;
       res.send = originalSend;
       res.end = originalEnd;
@@ -362,7 +369,7 @@ describe('Request Logger Middleware', () => {
       requestLogger(req as Request, res as Response, next);
 
       const responseBody = { test: 'data' };
-      
+
       // Test json method
       res.json!(responseBody);
       expect(originalJson).toHaveBeenCalledWith(responseBody);
@@ -380,7 +387,7 @@ describe('Request Logger Middleware', () => {
   describe('Timing Calculations', () => {
     it('should calculate duration correctly for different response methods', () => {
       requestLogger(req as Request, res as Response, next);
-      
+
       // Test different timing scenarios
       const testCases = [
         { delay: 50, expected: '50ms' },
@@ -393,9 +400,10 @@ describe('Request Logger Middleware', () => {
         Date.now = jest.fn().mockReturnValue(1000000 + delay);
 
         res.json!({ test: 'data' });
-        
+
         const { logger } = require('@/utils/logger');
-      expect(logger.info).toHaveBeenCalledWith('Outgoing response:', 
+        expect(logger.info).toHaveBeenCalledWith(
+          'Outgoing response:',
           expect.objectContaining({ duration: expected })
         );
       });
@@ -405,16 +413,17 @@ describe('Request Logger Middleware', () => {
   describe('Status Code Handling', () => {
     it('should log different status codes correctly', () => {
       const statusCodes = [200, 201, 400, 401, 404, 500];
-      
+
       statusCodes.forEach(statusCode => {
         jest.clearAllMocks();
         res.statusCode = statusCode;
-        
+
         requestLogger(req as Request, res as Response, next);
         res.json!({ status: statusCode });
 
         const { logger } = require('@/utils/logger');
-      expect(logger.info).toHaveBeenCalledWith('Outgoing response:',
+        expect(logger.info).toHaveBeenCalledWith(
+          'Outgoing response:',
           expect.objectContaining({ statusCode })
         );
       });

@@ -1,7 +1,7 @@
 import { AnalyticsController } from './AnalyticsController';
 import { CacheService } from '@/services/CacheService';
 import { AIService } from '@/services/AIService';
-import type { TrendInsight, SearchAnalytics, AIInsight } from '@/types';
+import type { AIInsight } from '@/types';
 import { createConnection } from 'mysql2/promise';
 
 // Mock dependencies
@@ -66,7 +66,9 @@ describe('AnalyticsController', () => {
     } as any;
 
     // Setup service constructors
-    (CacheService as jest.MockedClass<typeof CacheService>).mockImplementation(() => mockCacheService);
+    (CacheService as jest.MockedClass<typeof CacheService>).mockImplementation(
+      () => mockCacheService
+    );
     (AIService as jest.MockedClass<typeof AIService>).mockImplementation(() => mockAIService);
 
     analyticsController = new AnalyticsController();
@@ -102,7 +104,7 @@ describe('AnalyticsController', () => {
 
       for (const { period, expectedDays } of testCases) {
         jest.clearAllMocks();
-        
+
         const result = await analyticsController.getSearchTrends('user-123', { period });
 
         expect(result[0].period).toBe(period);
@@ -181,9 +183,9 @@ describe('AnalyticsController', () => {
       const dbError = new Error('Database error');
       mockConnection.execute.mockRejectedValue(dbError);
 
-      await expect(
-        analyticsController.getPerformanceMetrics('user-123', {})
-      ).rejects.toThrow('Database error');
+      await expect(analyticsController.getPerformanceMetrics('user-123', {})).rejects.toThrow(
+        'Database error'
+      );
     });
   });
 
@@ -263,9 +265,7 @@ describe('AnalyticsController', () => {
     });
 
     it('should use default pagination parameters', async () => {
-      mockConnection.execute
-        .mockResolvedValueOnce([[{ total: 100 }]])
-        .mockResolvedValueOnce([[]]);
+      mockConnection.execute.mockResolvedValueOnce([[{ total: 100 }]]).mockResolvedValueOnce([[]]);
 
       await analyticsController.getSearchHistory('user-123', {});
 
@@ -290,9 +290,7 @@ describe('AnalyticsController', () => {
     it('should get insights when AI is available', async () => {
       mockAIService.isAvailable.mockReturnValue(true);
       mockAIService.generateInsights.mockResolvedValue(mockInsights);
-      mockConnection.execute.mockResolvedValue([
-        [{ query_text: 'recent query' }],
-      ]);
+      mockConnection.execute.mockResolvedValue([[{ query_text: 'recent query' }]]);
 
       const result = await analyticsController.getInsights('user-123', { period: 'week' });
 
@@ -347,9 +345,9 @@ describe('AnalyticsController', () => {
         summary: { totalQueries: 50, averageResponseTime: 100 },
       });
 
-      jest.spyOn(analyticsController, 'getPopularQueries').mockResolvedValue([
-        { query_text: 'top query', frequency: 10 },
-      ]);
+      jest
+        .spyOn(analyticsController, 'getPopularQueries')
+        .mockResolvedValue([{ query_text: 'top query', frequency: 10 }]);
 
       jest.spyOn(analyticsController, 'getInsights').mockResolvedValue([]);
 

@@ -1,13 +1,15 @@
 import { validateRequest } from './validation';
-import { NextFunction, Request, Response } from 'express';
-import { z, ZodError } from 'zod';
+import type { NextFunction, Request, Response } from 'express';
+import { z } from 'zod';
 
 const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
   body: {},
   query: {},
   params: {},
   get: jest.fn().mockImplementation((header: string) => {
-    if (header === 'X-Request-ID') return 'test-request-id';
+    if (header === 'X-Request-ID') {
+      return 'test-request-id';
+    }
     return undefined;
   }),
   ...overrides,
@@ -233,21 +235,23 @@ describe('Validation Middleware', () => {
   describe('Params Validation', () => {
     const paramsSchema = z.object({
       id: z.string().uuid('Invalid UUID format'),
-      type: z.enum(['user', 'admin'], { errorMap: () => ({ message: 'Type must be user or admin' }) }),
+      type: z.enum(['user', 'admin'], {
+        errorMap: () => ({ message: 'Type must be user or admin' }),
+      }),
     });
 
     it('should validate valid path parameters', () => {
-      req.params = { 
-        id: '123e4567-e89b-12d3-a456-426614174000', 
-        type: 'user' 
+      req.params = {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        type: 'user',
       };
       const middleware = validateRequest({ params: paramsSchema });
 
       middleware(req as Request, res as Response, next);
 
-      expect(req.params).toEqual({ 
-        id: '123e4567-e89b-12d3-a456-426614174000', 
-        type: 'user' 
+      expect(req.params).toEqual({
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        type: 'user',
       });
       expect(next).toHaveBeenCalled();
       expect(res.status).not.toHaveBeenCalled();
@@ -329,9 +333,7 @@ describe('Validation Middleware', () => {
       const call = (res.json as jest.Mock).mock.calls[0][0];
       // Note: Only body validation will run first and fail, then validation stops
       expect(call.error.details).toHaveLength(1);
-      expect(call.error.details).toEqual([
-        expect.objectContaining({ field: 'name' }),
-      ]);
+      expect(call.error.details).toEqual([expect.objectContaining({ field: 'name' })]);
     });
   });
 
@@ -388,7 +390,7 @@ describe('Validation Middleware', () => {
     it('should handle missing request ID', () => {
       req.get = jest.fn().mockReturnValue(undefined);
       req.body = { invalid: 'data' };
-      
+
       const bodySchema = z.object({ name: z.string().min(1) });
       const middleware = validateRequest({ body: bodySchema });
 
@@ -413,10 +415,14 @@ describe('Validation Middleware', () => {
   describe('Complex Validation Scenarios', () => {
     it('should handle array validation', () => {
       const arraySchema = z.object({
-        items: z.array(z.object({
-          id: z.number(),
-          name: z.string().min(1),
-        })).min(1, 'At least one item is required'),
+        items: z
+          .array(
+            z.object({
+              id: z.number(),
+              name: z.string().min(1),
+            })
+          )
+          .min(1, 'At least one item is required'),
       });
 
       req.body = {
@@ -448,18 +454,23 @@ describe('Validation Middleware', () => {
     });
 
     it('should handle conditional validation', () => {
-      const conditionalSchema = z.object({
-        type: z.enum(['email', 'phone']),
-        contact: z.string(),
-      }).refine((data) => {
-        if (data.type === 'email') {
-          return z.string().email().safeParse(data.contact).success;
-        }
-        return true;
-      }, {
-        message: 'Invalid email format for email type',
-        path: ['contact'],
-      });
+      const conditionalSchema = z
+        .object({
+          type: z.enum(['email', 'phone']),
+          contact: z.string(),
+        })
+        .refine(
+          data => {
+            if (data.type === 'email') {
+              return z.string().email().safeParse(data.contact).success;
+            }
+            return true;
+          },
+          {
+            message: 'Invalid email format for email type',
+            path: ['contact'],
+          }
+        );
 
       req.body = { type: 'email', contact: 'invalid-email' };
       const middleware = validateRequest({ body: conditionalSchema });
