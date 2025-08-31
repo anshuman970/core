@@ -22,7 +22,7 @@ export class EncryptionUtil {
    * @returns Hashed password string
    */
   public static async hashPassword(password: string): Promise<string> {
-    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
+    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12', 10) || 12;
     return await bcrypt.hash(password, saltRounds);
   }
 
@@ -46,7 +46,7 @@ export class EncryptionUtil {
   public static encrypt(text: string): string {
     try {
       const iv = crypto.randomBytes(16);
-      const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
+      const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
 
       let encrypted = cipher.update(text, 'utf8', 'hex');
       encrypted += cipher.final('hex');
@@ -73,10 +73,11 @@ export class EncryptionUtil {
         throw new Error('Invalid encrypted text format');
       }
 
+      const iv = Buffer.from(parts[0], 'hex');
       const authTag = Buffer.from(parts[1], 'hex');
       const encrypted = parts[2];
 
-      const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
+      const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
       decipher.setAuthTag(authTag);
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -124,11 +125,21 @@ export class EncryptionUtil {
    * Verify HMAC signature
    */
   public static verifySignature(data: string, signature: string, secret?: string): boolean {
-    const key = secret || ENCRYPTION_KEY;
-    const expectedSignature = crypto.createHmac('sha256', key).update(data).digest('hex');
-    return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
+    try {
+      const key = secret || ENCRYPTION_KEY;
+      const expectedSignature = crypto.createHmac('sha256', key).update(data).digest('hex');
+
+      // Check if signatures have the same length to avoid buffer comparison errors
+      if (signature.length !== expectedSignature.length) {
+        return false;
+      }
+
+      return crypto.timingSafeEqual(
+        Buffer.from(signature, 'hex'),
+        Buffer.from(expectedSignature, 'hex')
+      );
+    } catch (_error) {
+      return false;
+    }
   }
 }
