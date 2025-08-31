@@ -109,24 +109,57 @@ describe('SearchService', () => {
       expect(results.data.totalCount).toBe(0);
     });
 
-    it('should handle database errors gracefully', async () => {
+    it('should handle cache errors gracefully', async () => {
       // Arrange
       const query = 'test query';
-      // Make the cache service throw an error to cause the search to fail
+      // Make the cache service throw an error but search should still succeed
       mockCacheService.set.mockRejectedValue(new Error('Cache service failed'));
-      mockDatabaseService.executeFullTextSearch.mockResolvedValue([]);
+      mockDatabaseService.executeFullTextSearch.mockResolvedValue([
+        { id: 1, title: 'Test Result', content: 'Test content', score: 0.8 },
+      ]);
 
       // Act
       const results = await searchService.performSearch(query, {
         databases: ['test-db-1'],
       });
 
-      // Assert - The search should fail due to cache error
+      // Assert - The search should succeed despite cache error
+      expect(results.success).toBe(true);
+      expect(results.data).toBeDefined();
+      expect(results.data.results).toHaveLength(1);
+      expect(results.data.results[0].data.title).toBe('Test Result');
+
+      // Verify that database search was still called
+      expect(mockDatabaseService.executeFullTextSearch).toHaveBeenCalledWith(
+        'test-db-1',
+        query,
+        [],
+        undefined,
+        20,
+        0
+      );
+    });
+
+    it('should handle database errors gracefully', async () => {
+      // Arrange
+      const query = 'test query';
+      // Make the database service throw an error
+      mockDatabaseService.executeFullTextSearch.mockRejectedValue(
+        new Error('Database connection failed')
+      );
+      mockCacheService.get.mockResolvedValue(null); // No cached results
+
+      // Act
+      const results = await searchService.performSearch(query, {
+        databases: ['test-db-1'],
+      });
+
+      // Assert - The search should fail due to database error
       expect(results.success).toBe(false);
       expect(results.error).toEqual(
         expect.objectContaining({
           code: 'SEARCH_FAILED',
-          message: expect.stringContaining('Cache service failed'),
+          message: expect.stringContaining('All 1 databases failed to respond'),
         })
       );
     });

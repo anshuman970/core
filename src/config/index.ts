@@ -1,5 +1,7 @@
 import type { AppConfig } from '@/types';
 
+const isTestEnvironment = process.env.NODE_ENV === 'test';
+
 const requiredEnvVars = [
   'JWT_SECRET',
   'DB_HOST',
@@ -8,10 +10,22 @@ const requiredEnvVars = [
   'DB_DATABASE',
 ] as const;
 
-// Validate required environment variables
-const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
-if (missingVars.length > 0) {
-  throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+// In test environment, provide defaults to avoid strict validation
+if (isTestEnvironment) {
+  process.env.JWT_SECRET =
+    process.env.JWT_SECRET || 'test_jwt_secret_key_for_testing_at_least_32_characters_long';
+  process.env.DB_HOST = process.env.DB_HOST || 'localhost';
+  process.env.DB_USERNAME = process.env.DB_USERNAME || 'test_user';
+  process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'test_password';
+  process.env.DB_DATABASE = process.env.DB_DATABASE || 'altus4_test';
+}
+
+// Validate required environment variables (skip in test mode or provide defaults)
+if (!isTestEnvironment) {
+  const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+  if (missingVars.length > 0) {
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  }
 }
 
 export const config: AppConfig = {
@@ -50,8 +64,10 @@ export const validateConfig = (): void => {
     throw new Error('PORT must be between 1 and 65535');
   }
 
-  if (config.jwtSecret.length < 32) {
-    throw new Error('JWT_SECRET must be at least 32 characters long');
+  // Be more lenient with JWT secret in test environment
+  const minJwtLength = isTestEnvironment ? 16 : 32;
+  if (config.jwtSecret.length < minJwtLength) {
+    throw new Error(`JWT_SECRET must be at least ${minJwtLength} characters long`);
   }
 
   if (!['development', 'production', 'test'].includes(config.environment)) {

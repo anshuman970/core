@@ -17,7 +17,7 @@ export class SearchService {
   private aiService: AIService;
   private cacheService: CacheService;
 
-  constructor(databaseService: DatabaseService, aiService: AIService, cacheService: CacheService) {
+  constructor (databaseService: DatabaseService, aiService: AIService, cacheService: CacheService) {
     this.databaseService = databaseService;
     this.aiService = aiService;
     this.cacheService = cacheService;
@@ -72,6 +72,11 @@ export class SearchService {
         }
       });
 
+      // If all databases failed, throw an error
+      if (failedDatabases.length === request.databases!.length && request.databases!.length > 0) {
+        throw new Error(`Search failed: All ${failedDatabases.length} databases failed to respond`);
+      }
+
       // Sort results by relevance score
       allResults.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
@@ -114,7 +119,12 @@ export class SearchService {
 
       // Cache the result (except when analytics are included)
       if (!request.includeAnalytics) {
-        await this.cacheService.set(cacheKey, response, 300); // 5 minutes cache
+        try {
+          await this.cacheService.set(cacheKey, response, 300); // 5 minutes cache
+        } catch (cacheError) {
+          logger.warn('Failed to cache search results:', cacheError);
+          // Continue execution - caching failure shouldn't break the search
+        }
       }
 
       // Log search analytics
@@ -160,7 +170,7 @@ export class SearchService {
       }));
     } catch (error) {
       logger.error(`Database search failed for ${databaseId}:`, error);
-      return [];
+      throw error; // Re-throw to allow Promise.allSettled to catch it
     }
   }
 
