@@ -8,7 +8,7 @@ This section provides detailed documentation for each service class in Altus 4, 
 
 Altus 4 follows a layered service architecture where each service has specific responsibilities:
 
-```
+```text
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Controllers   │────│    Services     │────│   Data Layer    │
 │                 │    │                 │    │                 │

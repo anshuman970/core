@@ -9,6 +9,18 @@ Altus 4 is an intelligent search-as-a-service platform that leverages MySQL's bu
 Instead of requiring users to migrate to specialized search solutions like Elasticsearch or Solr, Altus 4 enhances MySQL's native `FULLTEXT` search with:
 
 - AI-powered query optimization and semantic search
+
+```text
+src/
+├── config/          # Configuration management and validation
+├── controllers/     # Route controllers with business logic
+├── middleware/      # Express middleware (auth, validation, rate limiting)
+├── routes/         # API route definitions with Zod validation
+├── services/       # Core business logic services
+├── types/          # TypeScript interface and type definitions
+├── utils/          # Utility functions (logging, encryption, etc.)
+```
+
 - Natural language query processing
 - Intelligent result categorization and insights
 - Performance monitoring and optimization suggestions
@@ -54,7 +66,7 @@ Instead of requiring users to migrate to specialized search solutions like Elast
 
 ### File Organization
 
-```
+```text
 src/
 ├── config/          # Configuration management and validation
 ├── controllers/     # Route controllers with business logic

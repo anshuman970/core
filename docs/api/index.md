@@ -21,16 +21,16 @@ Authorization: Bearer <your-jwt-token>
 
 ### Authentication Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `POST` | `/api/auth/register` | Register new user | No |
-| `POST` | `/api/auth/login` | User login | No |
-| `POST` | `/api/auth/logout` | User logout | Yes |
-| `GET` | `/api/auth/profile` | Get user profile | Yes |
-| `PUT` | `/api/auth/profile` | Update profile | Yes |
-| `POST` | `/api/auth/change-password` | Change password | Yes |
-| `POST` | `/api/auth/refresh` | Refresh JWT token | Yes |
-| `DELETE` | `/api/auth/deactivate` | Deactivate account | Yes |
+| Method   | Endpoint                    | Description        | Auth Required |
+| -------- | --------------------------- | ------------------ | ------------- |
+| `POST`   | `/api/auth/register`        | Register new user  | No            |
+| `POST`   | `/api/auth/login`           | User login         | No            |
+| `POST`   | `/api/auth/logout`          | User logout        | Yes           |
+| `GET`    | `/api/auth/profile`         | Get user profile   | Yes           |
+| `PUT`    | `/api/auth/profile`         | Update profile     | Yes           |
+| `POST`   | `/api/auth/change-password` | Change password    | Yes           |
+| `POST`   | `/api/auth/refresh`         | Refresh JWT token  | Yes           |
+| `DELETE` | `/api/auth/deactivate`      | Deactivate account | Yes           |
 
 [**→ Complete Authentication Documentation**](./auth.md)
 
@@ -40,16 +40,16 @@ Manage MySQL database connections for searching.
 
 ### Database Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `GET` | `/api/databases` | List user databases | Yes |
-| `POST` | `/api/databases` | Add database connection | Yes |
-| `GET` | `/api/databases/:id` | Get database details | Yes |
-| `PUT` | `/api/databases/:id` | Update database connection | Yes |
-| `DELETE` | `/api/databases/:id` | Remove database connection | Yes |
-| `POST` | `/api/databases/:id/test` | Test database connection | Yes |
-| `GET` | `/api/databases/:id/schema` | Get database schema | Yes |
-| `GET` | `/api/databases/:id/status` | Get connection status | Yes |
+| Method   | Endpoint                    | Description                | Auth Required |
+| -------- | --------------------------- | -------------------------- | ------------- |
+| `GET`    | `/api/databases`            | List user databases        | Yes           |
+| `POST`   | `/api/databases`            | Add database connection    | Yes           |
+| `GET`    | `/api/databases/:id`        | Get database details       | Yes           |
+| `PUT`    | `/api/databases/:id`        | Update database connection | Yes           |
+| `DELETE` | `/api/databases/:id`        | Remove database connection | Yes           |
+| `POST`   | `/api/databases/:id/test`   | Test database connection   | Yes           |
+| `GET`    | `/api/databases/:id/schema` | Get database schema        | Yes           |
+| `GET`    | `/api/databases/:id/status` | Get connection status      | Yes           |
 
 [**Complete Database Documentation**](./database.md)
 
@@ -59,13 +59,13 @@ Execute searches across connected databases with AI enhancements.
 
 ### Search Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `POST` | `/api/search` | Execute search | Yes |
-| `GET` | `/api/search/suggestions` | Get search suggestions | Yes |
-| `POST` | `/api/search/analyze` | Analyze query performance | Yes |
-| `GET` | `/api/search/history` | Get search history | Yes |
-| `GET` | `/api/search/trends` | Get user search trends | Yes |
+| Method | Endpoint                  | Description               | Auth Required |
+| ------ | ------------------------- | ------------------------- | ------------- |
+| `POST` | `/api/search`             | Execute search            | Yes           |
+| `GET`  | `/api/search/suggestions` | Get search suggestions    | Yes           |
+| `POST` | `/api/search/analyze`     | Analyze query performance | Yes           |
+| `GET`  | `/api/search/history`     | Get search history        | Yes           |
+| `GET`  | `/api/search/trends`      | Get user search trends    | Yes           |
 
 [**Complete Search Documentation**](./search.md)
 
@@ -75,15 +75,15 @@ Access search analytics, performance metrics, and trend data.
 
 ### Analytics Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `GET` | `/api/analytics/dashboard` | Get dashboard data | Yes |
-| `GET` | `/api/analytics/trends` | Get search trends | Yes |
-| `GET` | `/api/analytics/performance` | Get performance metrics | Yes |
-| `GET` | `/api/analytics/popular-queries` | Get popular queries | Yes |
-| `GET` | `/api/analytics/insights` | Get AI-generated insights | Yes |
-| `GET` | `/api/analytics/overview` | Get system overview | Yes |
-| `GET` | `/api/analytics/user-activity` | Get user activity metrics | Yes |
+| Method | Endpoint                         | Description               | Auth Required |
+| ------ | -------------------------------- | ------------------------- | ------------- |
+| `GET`  | `/api/analytics/dashboard`       | Get dashboard data        | Yes           |
+| `GET`  | `/api/analytics/trends`          | Get search trends         | Yes           |
+| `GET`  | `/api/analytics/performance`     | Get performance metrics   | Yes           |
+| `GET`  | `/api/analytics/popular-queries` | Get popular queries       | Yes           |
+| `GET`  | `/api/analytics/insights`        | Get AI-generated insights | Yes           |
+| `GET`  | `/api/analytics/overview`        | Get system overview       | Yes           |
+| `GET`  | `/api/analytics/user-activity`   | Get user activity metrics | Yes           |
 
 [**Complete Analytics Documentation**](./analytics.md)
 
@@ -91,12 +91,12 @@ Access search analytics, performance metrics, and trend data.
 
 Health checks and system information.
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `GET` | `/health` | System health check | No |
-| `GET` | `/health/db` | Database health check | No |
-| `GET` | `/health/redis` | Redis health check | No |
-| `GET` | `/version` | API version info | No |
+| Method | Endpoint        | Description           | Auth Required |
+| ------ | --------------- | --------------------- | ------------- |
+| `GET`  | `/health`       | System health check   | No            |
+| `GET`  | `/health/db`    | Database health check | No            |
+| `GET`  | `/health/redis` | Redis health check    | No            |
+| `GET`  | `/version`      | API version info      | No            |
 
 ## Request/Response Format
 
@@ -166,30 +166,30 @@ interface ApiResponse<T> {
 
 ### HTTP Status Codes
 
-| Status | Code | Description | Common Causes |
-|--------|------|-------------|---------------|
-| 200 | OK | Request successful | - |
-| 201 | Created | Resource created | Registration, database connection |
-| 400 | Bad Request | Invalid request | Missing/invalid parameters |
-| 401 | Unauthorized | Authentication required | Missing/invalid JWT token |
-| 403 | Forbidden | Insufficient permissions | Accessing other user's resources |
-| 404 | Not Found | Resource not found | Invalid database/search ID |
-| 429 | Too Many Requests | Rate limit exceeded | Too many API calls |
-| 500 | Internal Server Error | Server error | Database/Redis connectivity issues |
+| Status | Code                  | Description              | Common Causes                      |
+| ------ | --------------------- | ------------------------ | ---------------------------------- |
+| 200    | OK                    | Request successful       | -                                  |
+| 201    | Created               | Resource created         | Registration, database connection  |
+| 400    | Bad Request           | Invalid request          | Missing/invalid parameters         |
+| 401    | Unauthorized          | Authentication required  | Missing/invalid JWT token          |
+| 403    | Forbidden             | Insufficient permissions | Accessing other user's resources   |
+| 404    | Not Found             | Resource not found       | Invalid database/search ID         |
+| 429    | Too Many Requests     | Rate limit exceeded      | Too many API calls                 |
+| 500    | Internal Server Error | Server error             | Database/Redis connectivity issues |
 
 ### Error Codes
 
-| Error Code | HTTP Status | Description |
-|------------|-------------|-------------|
-| `UNAUTHORIZED` | 401 | Missing or invalid authentication |
-| `FORBIDDEN` | 403 | Insufficient permissions |
-| `NOT_FOUND` | 404 | Resource not found |
-| `VALIDATION_ERROR` | 400 | Invalid request data |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
-| `DATABASE_ERROR` | 500 | Database connectivity/query error |
-| `CACHE_ERROR` | 500 | Redis connectivity error |
-| `AI_SERVICE_ERROR` | 500 | OpenAI API error |
-| `INTERNAL_ERROR` | 500 | Unexpected server error |
+| Error Code            | HTTP Status | Description                       |
+| --------------------- | ----------- | --------------------------------- |
+| `UNAUTHORIZED`        | 401         | Missing or invalid authentication |
+| `FORBIDDEN`           | 403         | Insufficient permissions          |
+| `NOT_FOUND`           | 404         | Resource not found                |
+| `VALIDATION_ERROR`    | 400         | Invalid request data              |
+| `RATE_LIMIT_EXCEEDED` | 429         | Too many requests                 |
+| `DATABASE_ERROR`      | 500         | Database connectivity/query error |
+| `CACHE_ERROR`         | 500         | Redis connectivity error          |
+| `AI_SERVICE_ERROR`    | 500         | OpenAI API error                  |
+| `INTERNAL_ERROR`      | 500         | Unexpected server error           |
 
 [**Complete Error Documentation**](./errors.md)
 

@@ -29,7 +29,7 @@ cd altus4
 git remote add upstream https://github.com/original/altus4.git
 ```
 
-2. **Install Dependencies**
+1. **Install Dependencies**
 
 ```bash
 # Install all dependencies
@@ -39,7 +39,7 @@ npm install
 npm run type-check
 ```
 
-3. **Configure Environment**
+1. **Configure Environment**
 
 ```bash
 # Copy development environment template
@@ -49,7 +49,7 @@ cp .env.example .env.development
 # Use different ports/databases for development
 ```
 
-4. **Setup Development Database**
+1. **Setup Development Database**
 
 ```sql
 -- Create development database
@@ -65,7 +65,7 @@ GRANT ALL PRIVILEGES ON altus4_test.* TO 'altus4_dev'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-5. **Start Development Server**
+1. **Start Development Server**
 
 ```bash
 # Start in development mode with hot reload
@@ -79,7 +79,7 @@ curl http://localhost:3000/health
 
 Understanding the codebase organization:
 
-```
+```text
 altus4/
 ├── src/                          # Source code
 │   ├── config/                   # Configuration management
@@ -203,7 +203,7 @@ git push origin feature/search-optimization
 
 We follow the **Conventional Commits** specification:
 
-```
+```text
 <type>[optional scope]: <description>
 
 [optional body]
@@ -283,7 +283,7 @@ export interface AnalyticsReport {
 }
 ```
 
-2. **Implement Service Class**
+1. **Implement Service Class**
 
 ```typescript
 // src/services/AnalyticsService.ts
@@ -323,7 +323,7 @@ export class AnalyticsService implements IAnalyticsService {
 }
 ```
 
-3. **Add Controller Methods**
+1. **Add Controller Methods**
 
 ```typescript
 // src/controllers/AnalyticsController.ts
@@ -358,7 +358,7 @@ export class AnalyticsController {
 }
 ```
 
-4. **Add API Routes**
+1. **Add API Routes**
 
 ```typescript
 // src/routes/analytics.ts
@@ -388,7 +388,7 @@ router.get(
 export default router;
 ```
 
-5. **Write Tests**
+1. **Write Tests**
 
 ```typescript
 // src/services/AnalyticsService.test.ts
@@ -530,7 +530,7 @@ export class DatabaseService {
 }
 ```
 
-2. **Optimize Queries**
+1. **Optimize Queries**
 
 ```typescript
 // Use prepared statements
@@ -545,7 +545,7 @@ const query = 'SELECT id, name, email FROM users WHERE id = ?';
 // CREATE FULLTEXT INDEX idx_content_search ON articles(title, content);
 ```
 
-3. **Implement Caching Strategies**
+1. **Implement Caching Strategies**
 
 ```typescript
 // Multi-level caching
@@ -590,7 +590,7 @@ const timer = setInterval(() => {}, 1000);
 clearInterval(timer);
 ```
 
-2. **Monitor Memory Usage**
+1. **Monitor Memory Usage**
 
 ```typescript
 // Memory usage monitoring

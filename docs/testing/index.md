@@ -8,7 +8,7 @@ This guide covers all aspects of testing in Altus 4, from unit tests to performa
 
 Altus 4 follows a comprehensive testing strategy based on the testing pyramid:
 
-```
+```text
     ┌─────────────────────┐
     │        E2E          │  ← Few, high-value
     │     (Manual &       │

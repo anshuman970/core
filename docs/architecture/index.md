@@ -8,7 +8,43 @@ This section provides comprehensive documentation of Altus 4's system architectu
 
 Altus 4 follows a layered architecture pattern designed for scalability, maintainability, and testability:
 
+```text
+┌─────────────────────────────────────────────────────────┐
+│                  Client Layer                           │
+│  Web UI, Mobile Apps, Third-party Integrations         │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                   API Layer                             │
+│  REST Endpoints, Authentication, Validation, Rate       │
 ```
+
+│                  Client Layer                           │
+│  Web UI, Mobile Apps, Third-party Integrations         │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                   API Layer                             │
+│  REST Endpoints, Authentication, Validation, Rate       │
+│  Limiting, Request/Response Transformation              │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                 Service Layer                           │
+│  Business Logic, Orchestration, Error Handling         │
+│  SearchService, UserService, AIService, etc.           │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                  Data Layer                             │
+│  MySQL Databases, Redis Cache, OpenAI API              │
+└─────────────────────────────────────────────────────────┘
+
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                  Client Layer                           │
 │  Web UI, Mobile Apps, Third-party Integrations         │
@@ -133,7 +169,7 @@ class SearchService extends EventEmitter {
 
 ### Search Request Flow
 
-```
+```text
 Client Request
       ↓
 Authentication Middleware
@@ -160,9 +196,36 @@ Analytics Logging
 JSON Response to Client
 ```
 
+```text
+Client Request
+  ↓
+Authentication Middleware
+  ↓
+Rate Limiting Middleware
+  ↓
+Request Validation
+  ↓
+SearchController.executeSearch()
+  ↓
+SearchService.search()
+  ↓
+┌─────────────────┬─────────────────┬─────────────────┐
+│   Cache Check   │  AI Processing  │ Database Query  │
+│   (Redis)       │   (OpenAI)      │   (MySQL)       │
+└─────────────────┴─────────────────┴─────────────────┘
+  ↓
+Result Processing & Enhancement
+  ↓
+Response Caching
+  ↓
+Analytics Logging
+  ↓
+JSON Response to Client
+```
+
 ### Authentication Flow
 
-```
+```text
 Login Request
       ↓
 UserService.loginUser()
@@ -177,6 +240,24 @@ Subsequent Requests with JWT
       ↓
 JWT Verification Middleware
       ↓
+Request Processing
+```
+
+```text
+Login Request
+  ↓
+UserService.loginUser()
+  ↓
+Password Verification (bcrypt)
+  ↓
+JWT Token Generation
+  ↓
+Response with JWT + Refresh Token
+  ↓
+Subsequent Requests with JWT
+  ↓
+JWT Verification Middleware
+  ↓
 Request Processing
 ```
 
@@ -243,7 +324,24 @@ Request Processing
 
 Current monolithic structure can be decomposed into microservices:
 
+```text
+Current Monolith:
+┌─────────────────────────────────────┐
+│            Altus 4 API              │
+│  ┌─────────┬─────────┬─────────┐   │
+│  │ Search  │  User   │   AI    │   │
+│  │ Service │ Service │ Service │   │
+│  └─────────┴─────────┴─────────┘   │
+└─────────────────────────────────────┘
+
+Future Microservices:
+┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│   Search    │  │    User     │  │     AI      │
+│  Service    │  │  Service    │  │  Service    │
+└─────────────┘  └─────────────┘  └─────────────┘
 ```
+
+```text
 Current Monolith:
 ┌─────────────────────────────────────┐
 │            Altus 4 API              │
@@ -273,6 +371,111 @@ Future Microservices:
 7. **Internal Errors**: Unexpected application errors (500)
 
 ### Error Handling Strategy
+
+```typescript
+// Custom error class
+class AppError extends Error {
+  constructor(
+    public code: string,
+    public message: string,
+    public statusCode: number = 500,
+    public details?: any
+  ) {
+    super(message);
+    this.name = 'AppError';
+}
+
+// Centralized error handler
+export const errorHandler = (
+  error: Error | AppError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const statusCode = error instanceof AppError ? error.statusCode : 500;
+  const code = error instanceof AppError ? error.code : 'INTERNAL_ERROR';
+
+  logger.error('Request failed:', { error, request: req.body });
+
+  res.status(statusCode).json({
+    success: false,
+    error: {
+      code,
+      message: error.message,
+      details: error instanceof AppError ? error.details : undefined,
+    },
+    meta: {
+      timestamp: new Date().toISOString(),
+      requestId: req.headers['x-request-id'],
+    },
+  });
+};
+```
+
+Response with JWT + Refresh Token
+    ↓
+
+  ```typescript
+  logger.error('Request failed:', { error, request: req.body });
+
+  res.status(statusCode).json({
+    success: false,
+    error: {
+      code,
+      message: error.message,
+      details: error instanceof AppError ? error.details : undefined,
+    },
+    meta: {
+      timestamp: new Date().toISOString(),
+      requestId: req.headers['x-request-id'],
+    },
+  });
+};
+```
+
+```text
+↓
+Response with JWT + Refresh Token
+  ↓
+```
+
+```typescript
+logger.error('Request failed:', { error, request: req.body });
+
+res.status(statusCode).json({
+  success: false,
+  error: {
+    code,
+    message: error.message,
+    details: error instanceof AppError ? error.details : undefined,
+  },
+  meta: {
+    timestamp: new Date().toISOString(),
+    requestId: req.headers['x-request-id'],
+  },
+});
+};
+```
+
+↓
+
+```typescript
+logger.error('Request failed:', { error, request: req.body });
+
+res.status(statusCode).json({
+  success: false,
+  error: {
+    code,
+    message: error.message,
+    details: error instanceof AppError ? error.details : undefined,
+  },
+  meta: {
+    timestamp: new Date().toISOString(),
+    requestId: req.headers['x-request-id'],
+  },
+});
+};
+```
 
 ```typescript
 // Custom error class

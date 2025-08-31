@@ -488,7 +488,7 @@ This README provides a quick overview. For comprehensive documentation:
 
 ### Project Structure
 
-```
+```text
 src/
 ├── config/          # Configuration management
 ├── controllers/     # Route controllers

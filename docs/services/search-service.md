@@ -52,7 +52,7 @@ constructor(
 
 The service orchestrates complex workflows involving multiple external systems:
 
-```
+```text
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │    Cache    │    │ AI Service  │    │  Database   │
 │   Service   │    │  (OpenAI)   │    │   Service   │
@@ -74,7 +74,7 @@ The service orchestrates complex workflows involving multiple external systems:
 
 **Flow Diagram**:
 
-```
+```text
 Request → Cache Check → AI Processing → Database Search → Result Enhancement → Caching → Response
 ```
 

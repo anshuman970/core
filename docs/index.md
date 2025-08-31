@@ -177,7 +177,7 @@ Need help with Altus 4?
 - **Documentation**: You're in the right place!
 - **Community**: [GitHub Discussions](https://github.com/yourusername/altus4/discussions)
 - **Issues**: [GitHub Issues](https://github.com/yourusername/altus4/issues)
-- **Email**: support@altus4.dev
+- **Email**: <support@altus4.dev>
 
 ---
 
