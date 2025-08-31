@@ -31,6 +31,7 @@ Visit `http://localhost:3000/health` to verify the installation.
 ### System Requirements
 
 #### Minimum Requirements
+
 - **Node.js**: Version 18.0 or higher
 - **npm**: Version 8.0 or higher
 - **MySQL**: Version 8.0 or higher
@@ -39,12 +40,14 @@ Visit `http://localhost:3000/health` to verify the installation.
 - **Storage**: 1GB available disk space
 
 #### Recommended Requirements
+
 - **Node.js**: Version 20.0 or higher
 - **Memory**: 4GB RAM or more
 - **Storage**: 5GB available disk space
 - **CPU**: 2+ cores for better performance
 
 #### Operating System Support
+
 - **Linux**: Ubuntu 20.04+, CentOS 8+, Debian 11+
 - **macOS**: macOS 12+ (Monterey)
 - **Windows**: Windows 10/11 with WSL2
@@ -54,11 +57,13 @@ Visit `http://localhost:3000/health` to verify the installation.
 #### Node.js Installation
 
 **macOS (using Homebrew):**
+
 ```bash
 brew install node@20
 ```
 
 **Ubuntu/Debian:**
+
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
@@ -66,11 +71,13 @@ sudo apt-get install -y nodejs
 
 **Windows:**
 Download from [nodejs.org](https://nodejs.org) or use Chocolatey:
+
 ```powershell
 choco install nodejs
 ```
 
 **Verify installation:**
+
 ```bash
 node --version  # Should be 18.0.0 or higher
 npm --version   # Should be 8.0.0 or higher
@@ -79,12 +86,14 @@ npm --version   # Should be 8.0.0 or higher
 #### MySQL Installation
 
 **macOS:**
+
 ```bash
 brew install mysql@8.0
 brew services start mysql
 ```
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt update
 sudo apt install mysql-server-8.0
@@ -96,6 +105,7 @@ sudo systemctl enable mysql
 Download from [MySQL website](https://dev.mysql.com/downloads/installer/) and follow the installer.
 
 **Secure MySQL installation:**
+
 ```bash
 sudo mysql_secure_installation
 ```
@@ -103,12 +113,14 @@ sudo mysql_secure_installation
 #### Redis Installation
 
 **macOS:**
+
 ```bash
 brew install redis
 brew services start redis
 ```
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt install redis-server
 sudo systemctl start redis-server
@@ -117,12 +129,14 @@ sudo systemctl enable redis-server
 
 **Windows:**
 Use WSL2 or Docker:
+
 ```bash
 # Using Docker
 docker run -d --name redis -p 6379:6379 redis:7-alpine
 ```
 
 **Verify Redis:**
+
 ```bash
 redis-cli ping
 # Should return: PONG
@@ -185,6 +199,7 @@ collation-server = utf8mb4_unicode_ci
 ```
 
 Restart MySQL after making changes:
+
 ```bash
 sudo systemctl restart mysql
 ```
@@ -330,6 +345,7 @@ curl http://localhost:3000/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -340,11 +356,13 @@ Expected response:
 ```
 
 Test database health:
+
 ```bash
 curl http://localhost:3000/health/db
 ```
 
 Test Redis health:
+
 ```bash
 curl http://localhost:3000/health/redis
 ```
@@ -487,6 +505,7 @@ npm run db:reset
 **Error:** `Access denied for user 'altus4_user'@'localhost'`
 
 **Solutions:**
+
 ```sql
 -- Check user exists
 SELECT User, Host FROM mysql.user WHERE User = 'altus4_user';
@@ -507,6 +526,7 @@ FLUSH PRIVILEGES;
 **Error:** `Redis connection failed: ECONNREFUSED`
 
 **Solutions:**
+
 ```bash
 # Check Redis status
 redis-cli ping
@@ -526,6 +546,7 @@ redis-cli -h localhost -p 6379 ping
 **Error:** `EADDRINUSE: address already in use :::3000`
 
 **Solutions:**
+
 ```bash
 # Find process using port 3000
 lsof -i :3000
@@ -542,6 +563,7 @@ PORT=3001
 **Error:** `Invalid API key` or rate limit errors
 
 **Solutions:**
+
 - Verify API key in OpenAI dashboard
 - Check API usage and billing
 - Implement retry logic for rate limits
@@ -552,6 +574,7 @@ PORT=3001
 **Error:** Search returns no results despite data existing
 
 **Solutions:**
+
 ```sql
 -- Check if FULLTEXT indexes exist
 SHOW INDEX FROM your_table WHERE Index_type = 'FULLTEXT';
@@ -571,6 +594,7 @@ SHOW VARIABLES LIKE 'ft_%';
 #### 1. Slow Search Responses
 
 **Diagnostics:**
+
 ```bash
 # Enable query logging
 export ENABLE_QUERY_LOGGING=true
@@ -583,6 +607,7 @@ mysqladmin -u root -p processlist
 ```
 
 **Solutions:**
+
 - Add proper database indexes
 - Optimize MySQL configuration
 - Increase Redis memory
@@ -591,6 +616,7 @@ mysqladmin -u root -p processlist
 #### 2. High Memory Usage
 
 **Diagnostics:**
+
 ```bash
 # Monitor memory usage
 node --inspect server.js
@@ -600,6 +626,7 @@ npm run test:memory
 ```
 
 **Solutions:**
+
 - Implement connection pooling
 - Add garbage collection tuning
 - Optimize cache TTL values

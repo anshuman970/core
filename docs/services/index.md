@@ -28,20 +28,22 @@ Altus 4 follows a layered service architecture where each service has specific r
 
 ## Service Overview
 
-| Service | Purpose | Dependencies | Key Features |
-|---------|---------|--------------|--------------|
-| **SearchService** | Search orchestration | DatabaseService, AIService, CacheService | Multi-database search, AI enhancement, caching |
-| **DatabaseService** | MySQL operations | mysql2/promise | Connection management, query execution, schema discovery |
-| **AIService** | AI/ML integration | OpenAI API | Semantic search, query optimization, result categorization |
-| **CacheService** | Caching & analytics | Redis/ioredis | Search caching, analytics storage, performance optimization |
-| **UserService** | User management | DatabaseService | Authentication, user CRUD, JWT token management |
+| Service             | Purpose              | Dependencies                             | Key Features                                                |
+| ------------------- | -------------------- | ---------------------------------------- | ----------------------------------------------------------- |
+| **SearchService**   | Search orchestration | DatabaseService, AIService, CacheService | Multi-database search, AI enhancement, caching              |
+| **DatabaseService** | MySQL operations     | mysql2/promise                           | Connection management, query execution, schema discovery    |
+| **AIService**       | AI/ML integration    | OpenAI API                               | Semantic search, query optimization, result categorization  |
+| **CacheService**    | Caching & analytics  | Redis/ioredis                            | Search caching, analytics storage, performance optimization |
+| **UserService**     | User management      | DatabaseService                          | Authentication, user CRUD, JWT token management             |
 
 ## Service Documentation
 
 ### [SearchService](./SearchService.md)
+
 The core search orchestration engine that coordinates multi-database searches with AI enhancements.
 
 **Key Responsibilities:**
+
 - Orchestrate searches across multiple MySQL databases
 - Integrate AI-powered semantic search and query optimization
 - Manage search result caching and performance analytics
@@ -49,15 +51,18 @@ The core search orchestration engine that coordinates multi-database searches wi
 - Transform raw database results into structured search responses
 
 **Code Highlights:**
+
 - Complex async/await orchestration
 - Advanced caching strategies
 - AI service integration patterns
 - Error handling and fallback mechanisms
 
 ### [DatabaseService](./DatabaseService.md)
+
 MySQL database connection management and query execution service.
 
 **Key Responsibilities:**
+
 - Manage MySQL connection pools for multiple databases
 - Execute full-text search queries with optimization
 - Discover database schemas and table structures
@@ -65,15 +70,18 @@ MySQL database connection management and query execution service.
 - Encrypt and store database credentials securely
 
 **Code Highlights:**
+
 - Connection pooling and lifecycle management
 - Dynamic query building and parameterization
 - Schema introspection and metadata extraction
 - Security patterns for credential handling
 
 ### [AIService](./AIService.md)
+
 OpenAI integration service for AI-enhanced search capabilities.
 
 **Key Responsibilities:**
+
 - Process queries with semantic understanding
 - Generate intelligent search suggestions
 - Categorize and enhance search results
@@ -81,15 +89,18 @@ OpenAI integration service for AI-enhanced search capabilities.
 - Generate search trend insights and analytics
 
 **Code Highlights:**
+
 - OpenAI API integration patterns
 - Prompt engineering and response processing
 - Error handling for external API failures
 - Rate limiting and quota management
 
 ### [CacheService](./CacheService.md)
+
 Redis-based caching and analytics service for performance optimization.
 
 **Key Responsibilities:**
+
 - Cache search results for improved performance
 - Store and retrieve search analytics data
 - Manage popular queries and trending searches
@@ -97,15 +108,18 @@ Redis-based caching and analytics service for performance optimization.
 - Provide real-time performance metrics
 
 **Code Highlights:**
+
 - Redis data structures and operations
 - Cache invalidation strategies
 - Analytics data modeling
 - Performance monitoring patterns
 
 ### [UserService](./UserService.md)
+
 User management service handling authentication and user lifecycle.
 
 **Key Responsibilities:**
+
 - User registration and profile management
 - Password hashing and authentication
 - JWT token generation and validation
@@ -113,6 +127,7 @@ User management service handling authentication and user lifecycle.
 - Account lifecycle operations
 
 **Code Highlights:**
+
 - bcrypt password hashing patterns
 - JWT token management
 - User data validation and sanitization
@@ -196,11 +211,7 @@ describe('SearchService', () => {
     mockAIService = createMockAIService();
     mockCacheService = createMockCacheService();
 
-    searchService = new SearchService(
-      mockDatabaseService,
-      mockAIService,
-      mockCacheService
-    );
+    searchService = new SearchService(mockDatabaseService, mockAIService, mockCacheService);
   });
 
   it('should perform search successfully', async () => {
@@ -230,23 +241,23 @@ describe('SearchService Integration', () => {
 
 ### Performance Benchmarks
 
-| Service | Avg Response Time | Memory Usage | CPU Usage |
-|---------|------------------|--------------|-----------|
-| SearchService | 250ms | 45MB | 15% |
-| DatabaseService | 100ms | 25MB | 8% |
-| AIService | 800ms | 30MB | 12% |
-| CacheService | 5ms | 20MB | 3% |
-| UserService | 50ms | 15MB | 5% |
+| Service         | Avg Response Time | Memory Usage | CPU Usage |
+| --------------- | ----------------- | ------------ | --------- |
+| SearchService   | 250ms             | 45MB         | 15%       |
+| DatabaseService | 100ms             | 25MB         | 8%        |
+| AIService       | 800ms             | 30MB         | 12%       |
+| CacheService    | 5ms               | 20MB         | 3%        |
+| UserService     | 50ms              | 15MB         | 5%        |
 
 ### Error Rates
 
-| Service | Success Rate | Common Errors | Retry Strategy |
-|---------|-------------|---------------|----------------|
-| SearchService | 99.2% | Database timeout, Cache miss | Exponential backoff |
-| DatabaseService | 99.8% | Connection pool exhaustion | Connection retry |
-| AIService | 97.5% | API rate limits, Timeout | Rate limiting + retry |
-| CacheService | 99.9% | Redis connection issues | Failover to memory cache |
-| UserService | 99.5% | Database constraint violations | Input validation |
+| Service         | Success Rate | Common Errors                  | Retry Strategy           |
+| --------------- | ------------ | ------------------------------ | ------------------------ |
+| SearchService   | 99.2%        | Database timeout, Cache miss   | Exponential backoff      |
+| DatabaseService | 99.8%        | Connection pool exhaustion     | Connection retry         |
+| AIService       | 97.5%        | API rate limits, Timeout       | Rate limiting + retry    |
+| CacheService    | 99.9%        | Redis connection issues        | Failover to memory cache |
+| UserService     | 99.5%        | Database constraint violations | Input validation         |
 
 ## Inter-Service Communication
 
@@ -268,16 +279,13 @@ export class SearchService {
     }
 
     // 3. Execute database searches
-    const results = await this.databaseService.executeSearch(
-      processedQuery,
-      request.databases
-    );
+    const results = await this.databaseService.executeSearch(processedQuery, request.databases);
 
     // 4. Enhance results with AI
     const categorized = await this.aiService.categorizeResults(results);
 
     // 5. Cache and return
-    const response = { results: categorized, /* ... */ };
+    const response = { results: categorized /* ... */ };
     await this.cacheService.set(cacheKey, response, ttl);
     return response;
   }
@@ -322,6 +330,7 @@ export class NewService implements INewService {
 ---
 
 **Next Steps:**
+
 - [Deep dive into SearchService](./SearchService.md)
 - [Understanding DatabaseService](./DatabaseService.md)
 - [AI Integration Patterns](./AIService.md)

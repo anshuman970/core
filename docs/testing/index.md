@@ -37,6 +37,7 @@ Altus 4 follows a comprehensive testing strategy based on the testing pyramid:
 ## Test Types
 
 ### 1. Unit Tests
+
 Test individual functions, classes, and components in isolation.
 
 **Location**: `src/**/*.test.ts`
@@ -44,6 +45,7 @@ Test individual functions, classes, and components in isolation.
 **Coverage Target**: 90%+
 
 ### 2. Integration Tests
+
 Test API endpoints and service interactions with mocked external dependencies.
 
 **Location**: `tests/integration/**/*.test.ts`
@@ -51,6 +53,7 @@ Test API endpoints and service interactions with mocked external dependencies.
 **Coverage Target**: Key API endpoints
 
 ### 3. Performance Tests
+
 Test system performance under load and measure response times.
 
 **Location**: `tests/performance/**/*.test.ts`
@@ -58,6 +61,7 @@ Test system performance under load and measure response times.
 **Coverage Target**: Critical search operations
 
 ### 4. End-to-End Tests
+
 Test complete user workflows from client to database.
 
 **Location**: `tests/e2e/**/*.test.ts`
@@ -74,43 +78,37 @@ Our Jest setup (`jest.config.js`) includes:
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: [
-    '<rootDir>/src/**/*.test.ts',
-    '<rootDir>/tests/**/*.test.ts'
-  ],
+  testMatch: ['<rootDir>/src/**/*.test.ts', '<rootDir>/tests/**/*.test.ts'],
   setupFiles: ['<rootDir>/tests/env-setup.js'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/index.ts'
-  ],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/index.ts'],
   coverageReporters: ['text', 'lcov', 'html'],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@tests/(.*)$': '<rootDir>/tests/$1'
+    '^@tests/(.*)$': '<rootDir>/tests/$1',
   },
   projects: [
     {
       displayName: 'unit',
-      testMatch: ['<rootDir>/src/**/*.test.ts']
+      testMatch: ['<rootDir>/src/**/*.test.ts'],
     },
     {
       displayName: 'integration',
-      testMatch: ['<rootDir>/tests/integration/**/*.test.ts']
+      testMatch: ['<rootDir>/tests/integration/**/*.test.ts'],
     },
     {
       displayName: 'performance',
-      testMatch: ['<rootDir>/tests/performance/**/*.test.ts']
-    }
-  ]
+      testMatch: ['<rootDir>/tests/performance/**/*.test.ts'],
+    },
+  ],
 };
 ```
 
 ### Environment Setup
 
 **Test Environment Variables** (`.env.test`):
+
 ```bash
 NODE_ENV=test
 DB_HOST=localhost
@@ -130,6 +128,7 @@ ENABLE_PERFORMANCE_MONITORING=false
 ```
 
 **Global Test Setup** (`tests/setup.ts`):
+
 ```typescript
 import { logger } from '@/utils/logger';
 
@@ -203,11 +202,7 @@ describe('SearchService', () => {
     };
 
     // Initialize service with mocks
-    searchService = new SearchService(
-      mockDatabaseService,
-      mockAIService,
-      mockCacheService
-    );
+    searchService = new SearchService(mockDatabaseService, mockAIService, mockCacheService);
   });
 
   describe('performSearch', () => {
@@ -231,15 +226,13 @@ describe('SearchService', () => {
 
     it('should handle database search when cache misses', async () => {
       // Arrange
-      const rawResults = [
-        { id: 1, title: 'Test Result', content: 'Test content', score: 0.9 }
-      ];
+      const rawResults = [{ id: 1, title: 'Test Result', content: 'Test content', score: 0.9 }];
       mockCacheService.get.mockResolvedValue(null);
       mockDatabaseService.executeFullTextSearch.mockResolvedValue(rawResults);
 
       // Act
       const result = await searchService.performSearch('test query', {
-        databases: ['db-1']
+        databases: ['db-1'],
       });
 
       // Assert
@@ -255,7 +248,7 @@ describe('SearchService', () => {
 
       // Act
       const result = await searchService.performSearch('test', {
-        databases: ['db-1']
+        databases: ['db-1'],
       });
 
       // Assert
@@ -348,13 +341,10 @@ describe('Authentication API', () => {
       const userData = {
         email: 'test@example.com',
         password: 'SecurePassword123!',
-        name: 'Test User'
+        name: 'Test User',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(201);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.user.email).toBe(userData.email);
@@ -366,13 +356,10 @@ describe('Authentication API', () => {
       const userData = {
         email: 'invalid-email',
         password: 'SecurePassword123!',
-        name: 'Test User'
+        name: 'Test User',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -382,20 +369,14 @@ describe('Authentication API', () => {
       const userData = {
         email: 'duplicate@example.com',
         password: 'SecurePassword123!',
-        name: 'Test User'
+        name: 'Test User',
       };
 
       // First registration
-      await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
+      await request(app).post('/api/auth/register').send(userData).expect(201);
 
       // Duplicate registration
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(409);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(409);
 
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('USER_ALREADY_EXISTS');
@@ -407,7 +388,7 @@ describe('Authentication API', () => {
       await TestHelpers.createTestUser({
         email: 'login-test@example.com',
         password: 'TestPassword123!',
-        name: 'Login Test User'
+        name: 'Login Test User',
       });
     });
 
@@ -416,7 +397,7 @@ describe('Authentication API', () => {
         .post('/api/auth/login')
         .send({
           email: 'login-test@example.com',
-          password: 'TestPassword123!'
+          password: 'TestPassword123!',
         })
         .expect(200);
 
@@ -430,7 +411,7 @@ describe('Authentication API', () => {
         .post('/api/auth/login')
         .send({
           email: 'login-test@example.com',
-          password: 'WrongPassword'
+          password: 'WrongPassword',
         })
         .expect(401);
 
@@ -480,7 +461,7 @@ describe('SearchService Integration', () => {
       userId: 'integration-test-user',
       databases: ['test-db-id'],
       searchMode: 'natural' as const,
-      limit: 10
+      limit: 10,
     };
 
     // First search should hit database
@@ -499,7 +480,7 @@ describe('SearchService Integration', () => {
       query: 'test query',
       userId: 'test-user',
       databases: ['non-existent-db-id'],
-      searchMode: 'natural' as const
+      searchMode: 'natural' as const,
     };
 
     await expect(searchService.search(searchRequest)).rejects.toThrow();
@@ -558,8 +539,8 @@ describe('Search Performance Tests', () => {
 
     // Process in batches to avoid overwhelming the system
     for (let i = 0; i < requestCount; i += batchSize) {
-      const batch = Array.from({ length: Math.min(batchSize, requestCount - i) },
-        (_, j) => searchService.performSearch(`volume test ${i + j}`)
+      const batch = Array.from({ length: Math.min(batchSize, requestCount - i) }, (_, j) =>
+        searchService.performSearch(`volume test ${i + j}`)
       );
       batches.push(Promise.all(batch));
     }
@@ -612,7 +593,7 @@ export class TestHelpers {
         port: parseInt(process.env.DB_PORT || '3306'),
         user: process.env.DB_USERNAME || 'root',
         password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_DATABASE || 'altus4_test'
+        database: process.env.DB_DATABASE || 'altus4_test',
       });
     }
     return this.dbConnection;
@@ -665,7 +646,7 @@ export class TestHelpers {
     return {
       id: userId,
       email: userData.email,
-      name: userData.name
+      name: userData.name,
     };
   }
 
@@ -677,11 +658,13 @@ export class TestHelpers {
     );
   }
 
-  static async insertTestContent(contentData: Array<{
-    title: string;
-    content: string;
-    category?: string;
-  }>): Promise<void> {
+  static async insertTestContent(
+    contentData: Array<{
+      title: string;
+      content: string;
+      category?: string;
+    }>
+  ): Promise<void> {
     const connection = await this.getDbConnection();
 
     for (const item of contentData) {
@@ -758,11 +741,11 @@ BENCHMARK=true npm run test:performance
 
 ### Coverage Targets
 
-| Test Type | Target | Current |
-|-----------|--------|---------|
-| Unit Tests | 90% | 94% |
-| Integration | 80% | 85% |
-| Overall | 85% | 89% |
+| Test Type   | Target | Current |
+| ----------- | ------ | ------- |
+| Unit Tests  | 90%    | 94%     |
+| Integration | 80%    | 85%     |
+| Overall     | 85%    | 89%     |
 
 ### Coverage Commands
 
@@ -815,40 +798,40 @@ jobs:
           --health-retries=3
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run linting
-      run: npm run lint
+      - name: Run linting
+        run: npm run lint
 
-    - name: Run type checking
-      run: npm run type-check
+      - name: Run type checking
+        run: npm run type-check
 
-    - name: Run unit tests
-      run: npm run test:unit
-      env:
-        NODE_ENV: test
+      - name: Run unit tests
+        run: npm run test:unit
+        env:
+          NODE_ENV: test
 
-    - name: Run integration tests
-      run: npm run test:integration
-      env:
-        NODE_ENV: test
-        DB_HOST: 127.0.0.1
-        DB_PASSWORD: root
-        REDIS_HOST: 127.0.0.1
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PASSWORD: root
+          REDIS_HOST: 127.0.0.1
 
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage/lcov.info
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
 ```
 
 ## Best Practices

@@ -17,7 +17,7 @@ export class SearchService {
   private aiService: AIService;
   private cacheService: CacheService;
 
-  constructor (databaseService: DatabaseService, aiService: AIService, cacheService: CacheService) {
+  constructor(databaseService: DatabaseService, aiService: AIService, cacheService: CacheService) {
     this.databaseService = databaseService;
     this.aiService = aiService;
     this.cacheService = cacheService;

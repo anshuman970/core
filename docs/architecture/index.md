@@ -38,6 +38,7 @@ Altus 4 follows a layered architecture pattern designed for scalability, maintai
 ## Core Components
 
 ### API Layer
+
 - **Express.js Server**: RESTful API endpoints with middleware pipeline
 - **Authentication**: JWT-based authentication with refresh tokens
 - **Validation**: Zod schema validation for all endpoints
@@ -46,6 +47,7 @@ Altus 4 follows a layered architecture pattern designed for scalability, maintai
 - **Request Logging**: Comprehensive request/response logging with correlation IDs
 
 ### Service Layer
+
 - **SearchService**: Core search orchestration and AI integration
 - **DatabaseService**: MySQL connection management and query execution
 - **AIService**: OpenAI API integration for semantic enhancements
@@ -53,6 +55,7 @@ Altus 4 follows a layered architecture pattern designed for scalability, maintai
 - **UserService**: Authentication and user management
 
 ### Data Layer
+
 - **MySQL Databases**: Primary data storage with full-text search capabilities
 - **Redis Cache**: Search result caching and analytics data
 - **OpenAI API**: External AI service for semantic processing
@@ -60,6 +63,7 @@ Altus 4 follows a layered architecture pattern designed for scalability, maintai
 ## Design Patterns
 
 ### 1. Dependency Injection
+
 All services use constructor-based dependency injection for loose coupling:
 
 ```typescript
@@ -73,11 +77,13 @@ export class SearchService {
 ```
 
 **Benefits:**
+
 - Improved testability with easy mocking
 - Flexible service composition
 - Clear dependency relationships
 
 ### 2. Repository Pattern
+
 Data access is abstracted through service interfaces:
 
 ```typescript
@@ -88,6 +94,7 @@ interface IUserService {
 ```
 
 ### 3. Strategy Pattern
+
 Different search modes implemented as strategies:
 
 ```typescript
@@ -96,15 +103,19 @@ type SearchMode = 'natural' | 'boolean' | 'semantic';
 class SearchService {
   private getSearchStrategy(mode: SearchMode): SearchStrategy {
     switch (mode) {
-      case 'natural': return new NaturalSearchStrategy();
-      case 'boolean': return new BooleanSearchStrategy();
-      case 'semantic': return new SemanticSearchStrategy();
+      case 'natural':
+        return new NaturalSearchStrategy();
+      case 'boolean':
+        return new BooleanSearchStrategy();
+      case 'semantic':
+        return new SemanticSearchStrategy();
     }
   }
 }
 ```
 
 ### 4. Observer Pattern
+
 Event-driven analytics and monitoring:
 
 ```typescript
@@ -172,18 +183,21 @@ Request Processing
 ## Security Architecture
 
 ### Authentication & Authorization
+
 - **JWT Tokens**: Stateless authentication with configurable expiration
 - **Refresh Tokens**: Secure token renewal without re-authentication
 - **Password Hashing**: bcrypt with configurable salt rounds
 - **Role-based Access**: User roles for feature access control
 
 ### Data Protection
+
 - **Credential Encryption**: Database credentials encrypted at rest
 - **SQL Injection Prevention**: Parameterized queries throughout
 - **Input Sanitization**: All user inputs validated and sanitized
 - **HTTPS Only**: TLS encryption for all API communications
 
 ### Rate Limiting
+
 - **Per-user Limits**: Different limits for authenticated vs anonymous users
 - **Per-endpoint Limits**: Endpoint-specific rate limiting
 - **Sliding Window**: Redis-based sliding window rate limiting
@@ -192,18 +206,21 @@ Request Processing
 ## Performance Architecture
 
 ### Caching Strategy
+
 - **Multi-level Caching**: L1 (in-memory) and L2 (Redis) caching
 - **Cache Keys**: Deterministic cache key generation based on request parameters
 - **TTL Management**: Different TTL values based on data volatility
 - **Cache Invalidation**: Event-driven cache invalidation on data updates
 
 ### Database Optimization
+
 - **Connection Pooling**: Efficient MySQL connection management
 - **Full-text Indexes**: Optimized MySQL FULLTEXT indexes for search
 - **Query Optimization**: Analyzed and optimized search queries
 - **Read Replicas**: Support for read replica databases (future enhancement)
 
 ### Parallel Processing
+
 - **Concurrent Searches**: Multiple database searches executed in parallel
 - **Promise.allSettled**: Graceful handling of partial failures
 - **Worker Threads**: CPU-intensive operations (future enhancement)
@@ -211,16 +228,19 @@ Request Processing
 ## Scalability Considerations
 
 ### Horizontal Scaling
+
 - **Stateless Design**: No server-side session state
 - **Load Balancer Ready**: Compatible with standard load balancers
 - **Database Sharding**: Support for multiple database connections
 
 ### Vertical Scaling
+
 - **Resource Monitoring**: CPU and memory usage tracking
 - **Connection Pool Tuning**: Configurable database connection limits
 - **Cache Size Management**: Redis memory usage optimization
 
 ### Microservices Migration Path
+
 Current monolithic structure can be decomposed into microservices:
 
 ```
@@ -243,6 +263,7 @@ Future Microservices:
 ## Error Handling Architecture
 
 ### Error Categories
+
 1. **Validation Errors**: Invalid request data (400)
 2. **Authentication Errors**: Invalid or missing tokens (401)
 3. **Authorization Errors**: Insufficient permissions (403)
@@ -252,6 +273,7 @@ Future Microservices:
 7. **Internal Errors**: Unexpected application errors (500)
 
 ### Error Handling Strategy
+
 ```typescript
 // Custom error class
 class AppError extends Error {
@@ -283,12 +305,12 @@ export const errorHandler = (
     error: {
       code,
       message: error.message,
-      details: error instanceof AppError ? error.details : undefined
+      details: error instanceof AppError ? error.details : undefined,
     },
     meta: {
       timestamp: new Date().toISOString(),
-      requestId: req.headers['x-request-id']
-    }
+      requestId: req.headers['x-request-id'],
+    },
   });
 };
 ```
@@ -296,17 +318,20 @@ export const errorHandler = (
 ## Monitoring & Observability
 
 ### Logging Strategy
+
 - **Structured Logging**: JSON-formatted logs with consistent fields
 - **Log Levels**: Debug, info, warn, error with configurable levels
 - **Correlation IDs**: Request tracing across service boundaries
 - **Performance Metrics**: Response times and resource usage
 
 ### Health Checks
+
 - **Liveness Probe**: `/health` - Basic application health
 - **Readiness Probe**: `/health/ready` - Service dependencies health
 - **Deep Health Checks**: Individual service component health
 
 ### Metrics Collection
+
 ```typescript
 interface Metrics {
   requests: {
@@ -335,6 +360,7 @@ interface Metrics {
 ## Configuration Management
 
 ### Environment-based Configuration
+
 ```typescript
 interface Config {
   server: {
@@ -368,11 +394,13 @@ interface Config {
 ```
 
 ### Configuration Validation
+
 All configuration is validated at startup with detailed error messages for missing or invalid values.
 
 ## Future Architecture Enhancements
 
 ### Planned Improvements
+
 1. **Event Sourcing**: Audit trail for all data changes
 2. **CQRS**: Separate read/write models for better performance
 3. **Message Queues**: Asynchronous processing for heavy operations
@@ -381,6 +409,7 @@ All configuration is validated at startup with detailed error messages for missi
 6. **WebSocket Support**: Real-time search suggestions and results
 
 ### Technology Roadmap
+
 - **Database**: Consider PostgreSQL for advanced full-text search features
 - **Search Engine**: Evaluate Elasticsearch integration for complex queries
 - **Containerization**: Docker and Kubernetes deployment

@@ -156,16 +156,16 @@ npm run format
 
 ### Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Variables | camelCase | `searchResults` |
-| Functions | camelCase | `executeSearch()` |
-| Classes | PascalCase | `SearchService` |
-| Interfaces | PascalCase with I prefix | `ISearchRequest` |
-| Types | PascalCase | `SearchMode` |
-| Constants | UPPER_SNAKE_CASE | `MAX_SEARCH_RESULTS` |
-| Files | camelCase or kebab-case | `SearchService.ts`, `auth-controller.ts` |
-| Directories | camelCase | `controllers/`, `middleware/` |
+| Type        | Convention               | Example                                  |
+| ----------- | ------------------------ | ---------------------------------------- |
+| Variables   | camelCase                | `searchResults`                          |
+| Functions   | camelCase                | `executeSearch()`                        |
+| Classes     | PascalCase               | `SearchService`                          |
+| Interfaces  | PascalCase with I prefix | `ISearchRequest`                         |
+| Types       | PascalCase               | `SearchMode`                             |
+| Constants   | UPPER_SNAKE_CASE         | `MAX_SEARCH_RESULTS`                     |
+| Files       | camelCase or kebab-case  | `SearchService.ts`, `auth-controller.ts` |
+| Directories | camelCase                | `controllers/`, `middleware/`            |
 
 ### Code Organization Principles
 
@@ -212,6 +212,7 @@ We follow the **Conventional Commits** specification:
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -221,6 +222,7 @@ We follow the **Conventional Commits** specification:
 - `chore`: Maintenance tasks
 
 **Examples:**
+
 ```bash
 feat(search): add semantic search capability
 fix(auth): resolve JWT token expiration issue
@@ -231,12 +233,12 @@ refactor(database): optimize connection pooling
 
 ### Branch Naming
 
-| Type | Format | Example |
-|------|--------|---------|
-| Feature | `feature/description` | `feature/ai-search-integration` |
-| Bug Fix | `fix/description` | `fix/redis-connection-leak` |
-| Documentation | `docs/description` | `docs/api-reference-update` |
-| Refactor | `refactor/description` | `refactor/service-architecture` |
+| Type          | Format                 | Example                         |
+| ------------- | ---------------------- | ------------------------------- |
+| Feature       | `feature/description`  | `feature/ai-search-integration` |
+| Bug Fix       | `fix/description`      | `fix/redis-connection-leak`     |
+| Documentation | `docs/description`     | `docs/api-reference-update`     |
+| Refactor      | `refactor/description` | `refactor/service-architecture` |
 
 ## Adding New Features
 
@@ -306,7 +308,7 @@ export class AnalyticsService implements IAnalyticsService {
         searchCount,
         averageResponseTime,
         popularQueries: [],
-        trends: []
+        trends: [],
       };
     } catch (error) {
       logger.error('Failed to generate analytics report:', error);
@@ -336,18 +338,18 @@ export class AnalyticsController {
       const { userId } = req.user!;
       const { startDate, endDate } = req.query;
 
-      const report = await this.analyticsService.generateReport(
-        userId,
-        { startDate: new Date(startDate as string), endDate: new Date(endDate as string) }
-      );
+      const report = await this.analyticsService.generateReport(userId, {
+        startDate: new Date(startDate as string),
+        endDate: new Date(endDate as string),
+      });
 
       res.json({
         success: true,
         data: report,
         meta: {
           timestamp: new Date(),
-          requestId: req.id
-        }
+          requestId: req.id,
+        },
       });
     } catch (error) {
       throw error; // Let error middleware handle it
@@ -372,8 +374,8 @@ const analyticsController = new AnalyticsController();
 const generateReportSchema = z.object({
   query: z.object({
     startDate: z.string().datetime(),
-    endDate: z.string().datetime()
-  })
+    endDate: z.string().datetime(),
+  }),
 });
 
 router.get(
@@ -408,7 +410,7 @@ describe('AnalyticsService', () => {
     it('should generate analytics report successfully', async () => {
       const report = await analyticsService.generateReport('user1', {
         startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-01-31')
+        endDate: new Date('2024-01-31'),
       });
 
       expect(report).toBeDefined();
@@ -491,7 +493,7 @@ logger.info('User search request', {
   userId: 'user123',
   query: 'database optimization',
   searchMode: 'semantic',
-  duration: 150
+  duration: 150,
 });
 
 // Error logging with stack trace
@@ -501,7 +503,7 @@ try {
   logger.error('Operation failed', {
     error: error.message,
     stack: error.stack,
-    context: { userId, requestId }
+    context: { userId, requestId },
   });
 }
 ```
@@ -522,7 +524,7 @@ export class DatabaseService {
       host: config.database.host,
       connectionLimit: 10,
       acquireTimeout: 60000,
-      timeout: 60000
+      timeout: 60000,
     });
   }
 }
@@ -597,7 +599,7 @@ setInterval(() => {
   logger.info('Memory usage', {
     rss: Math.round(memUsage.rss / 1024 / 1024) + ' MB',
     heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + ' MB',
-    heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + ' MB'
+    heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + ' MB',
   });
 }, 60000); // Every minute
 ```
@@ -650,7 +652,6 @@ export class SearchService {
       // Perform search
       const results = await this.executeSearch(request);
       return results;
-
     } catch (error) {
       if (error instanceof AppError) {
         throw error; // Re-throw known errors
@@ -683,7 +684,7 @@ const searchSchema = z.object({
   query: z.string().min(1).max(1000),
   databases: z.array(z.string().uuid()),
   searchMode: z.enum(['natural', 'boolean', 'semantic']).default('natural'),
-  limit: z.number().min(1).max(100).default(20)
+  limit: z.number().min(1).max(100).default(20),
 });
 
 // Use in middleware
@@ -693,7 +694,7 @@ export const validateRequest = (schema: z.ZodSchema) => {
       const validated = schema.parse({
         body: req.body,
         query: req.query,
-        params: req.params
+        params: req.params,
       });
 
       req.body = validated.body || req.body;
@@ -784,8 +785,12 @@ describe('ServiceName', () => {
   describe('methodName', () => {
     it('should handle success case correctly', async () => {
       // Arrange
-      const input = { /* test data */ };
-      const expected = { /* expected result */ };
+      const input = {
+        /* test data */
+      };
+      const expected = {
+        /* expected result */
+      };
 
       // Act
       const result = await service.methodName(input);
@@ -796,11 +801,12 @@ describe('ServiceName', () => {
 
     it('should handle error case gracefully', async () => {
       // Arrange
-      const invalidInput = { /* invalid data */ };
+      const invalidInput = {
+        /* invalid data */
+      };
 
       // Act & Assert
-      await expect(service.methodName(invalidInput))
-        .rejects.toThrow('Expected error message');
+      await expect(service.methodName(invalidInput)).rejects.toThrow('Expected error message');
     });
   });
 });
@@ -820,7 +826,7 @@ const mockAIService = {
 } as jest.Mocked<AIService>;
 
 // Mock with implementation
-mockAIService.processSearchQuery.mockImplementation(async (query) => {
+mockAIService.processSearchQuery.mockImplementation(async query => {
   return { optimizedQuery: query, confidence: 0.95 };
 });
 ```
@@ -829,7 +835,7 @@ mockAIService.processSearchQuery.mockImplementation(async (query) => {
 
 ### Code Documentation
 
-```typescript
+````typescript
 /**
  * Executes a search across multiple databases with AI enhancements
  *
@@ -852,7 +858,7 @@ mockAIService.processSearchQuery.mockImplementation(async (query) => {
 async search(request: SearchRequest): Promise<SearchResponse> {
   // Implementation
 }
-```
+````
 
 ### API Documentation
 
@@ -908,20 +914,24 @@ Update OpenAPI specification for new endpoints:
 
 ```markdown
 ## Description
+
 Brief description of changes made.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated

@@ -7,6 +7,7 @@ The `SearchService` is the core orchestration engine of Altus 4, responsible for
 ## Overview
 
 The `SearchService` acts as the central coordinator that:
+
 - Orchestrates searches across multiple MySQL databases
 - Integrates AI-powered semantic search and query optimization
 - Manages intelligent caching for performance optimization
@@ -26,6 +27,7 @@ export class SearchService {
 ## Architecture & Design Patterns
 
 ### Dependency Injection
+
 The service uses constructor-based dependency injection for loose coupling and testability:
 
 ```typescript
@@ -41,11 +43,13 @@ constructor(
 ```
 
 **Benefits:**
+
 - **Testability**: Easy to mock dependencies in unit tests
 - **Flexibility**: Can swap implementations without changing the service
 - **Separation of Concerns**: Each dependency handles its specific domain
 
 ### Orchestration Pattern
+
 The service orchestrates complex workflows involving multiple external systems:
 
 ```
@@ -69,6 +73,7 @@ The service orchestrates complex workflows involving multiple external systems:
 **Purpose**: The main search orchestration method that coordinates all search operations.
 
 **Flow Diagram**:
+
 ```
 Request → Cache Check → AI Processing → Database Search → Result Enhancement → Caching → Response
 ```
@@ -205,6 +210,7 @@ private async executeSearchOnDatabase(
 ```
 
 **Result Transformation**:
+
 - Converts raw database rows to structured `SearchResult` objects
 - Generates unique IDs for each result
 - Calculates relevance scores based on text matching
@@ -253,6 +259,7 @@ public async getSearchSuggestions(request: SearchRequest): Promise<QuerySuggesti
 ```
 
 **Suggestion Sources**:
+
 1. **AI Suggestions**: Semantic understanding and query expansion
 2. **Popular Queries**: Based on user search patterns and analytics
 3. **Deduplication**: Ensures unique suggestions with highest scores
@@ -279,6 +286,7 @@ private generateCacheKey(request: SearchRequest): string {
 ```
 
 **Key Properties**:
+
 - **Deterministic**: Same request always generates same key
 - **Normalized**: Case-insensitive, sorted arrays for consistency
 - **Compact**: Base64 encoding for Redis key efficiency
@@ -321,6 +329,7 @@ private calculateRelevanceScore(row: any, query: string): number {
 ```
 
 **Scoring Algorithm**:
+
 1. **Exact Phrase Matching**: Full query string found = 1.0 points
 2. **Term Matching**: Individual terms found = 0.3 points each
 3. **Field Weighting**: Title/name fields get 1.5x multiplier
@@ -362,6 +371,7 @@ private generateSnippet(row: any, query: string): string {
 ```
 
 **Snippet Logic**:
+
 1. **Relevance Priority**: Prefer fields containing search terms
 2. **Length Optimization**: Truncate at 200 characters
 3. **Fallback Strategy**: Use any text field if no matches
@@ -397,6 +407,7 @@ private async logSearchAnalytics(
 ```
 
 **Analytics Data**:
+
 - User search patterns and preferences
 - Query performance metrics
 - Popular search terms and categories
@@ -468,11 +479,7 @@ describe('SearchService', () => {
       // ... other methods
     };
 
-    searchService = new SearchService(
-      mockDatabaseService,
-      mockAIService,
-      mockCacheService
-    );
+    searchService = new SearchService(mockDatabaseService, mockAIService, mockCacheService);
   });
 
   it('should return cached results when available', async () => {
@@ -482,7 +489,7 @@ describe('SearchService', () => {
     const result = await searchService.search({
       query: 'test',
       userId: 'user1',
-      databases: ['db1']
+      databases: ['db1'],
     });
 
     expect(result).toBe(mockResponse);
@@ -510,7 +517,7 @@ describe('SearchService Integration', () => {
     const result = await searchService.search({
       query: 'mysql optimization',
       userId: 'integration-test',
-      databases: ['test-db']
+      databases: ['test-db'],
     });
 
     expect(result.results).toBeDefined();
@@ -522,6 +529,7 @@ describe('SearchService Integration', () => {
 ## Performance Optimizations
 
 ### 1. Parallel Database Queries
+
 ```typescript
 // Execute searches in parallel rather than sequentially
 const searchPromises = databases.map(async dbId => {
@@ -532,6 +540,7 @@ const results = await Promise.allSettled(searchPromises);
 ```
 
 ### 2. Intelligent Caching Strategy
+
 ```typescript
 // Cache with appropriate TTL based on content type
 const ttl = request.includeAnalytics ? 60 : 300; // Analytics: 1min, Results: 5min
@@ -539,6 +548,7 @@ await this.cacheService.set(cacheKey, response, ttl);
 ```
 
 ### 3. Result Streaming for Large Sets
+
 ```typescript
 // For large result sets, consider streaming responses
 if (totalResults > 10000) {
