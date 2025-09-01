@@ -29,6 +29,12 @@
     "md:lint": "markdownlint '**/*.md' --ignore node_modules --ignore coverage --ignore dist --config .markdownlint.json",
     "md:lint:fix": "markdownlint '**/*.md' --ignore node_modules --ignore coverage --ignore dist --fix --config .markdownlint.json",
     "md:format": "prettier --write '**/*.md' --ignore-path .gitignore",
+    "security:audit": "npm audit --audit-level=high",
+    "security:fix": "npm audit fix",
+    "commit:verify": "bin/verify-commits.sh",
+    "commit:setup-signing": "bin/setup-gpg.sh",
+    "commit:configure-signing": "bin/setup-gpg.sh configure",
+    "hooks:test": "bin/test-hooks.sh",
     "pre-commit": "lint-staged && npm run check && npm run build && npm test",
     "prepare": "husky"
   },

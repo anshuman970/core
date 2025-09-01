@@ -1,0 +1,102 @@
+#!/bin/sh
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+print_success() {
+    echo "${GREEN}✅ $1${NC}"
+}
+
+print_error() {
+    echo "${RED}❌ $1${NC}"
+}
+
+print_warning() {
+    echo "${YELLOW}⚠️  $1${NC}"
+}
+
+print_info() {
+    echo "${BLUE}ℹ️  $1${NC}"
+}
+
+echo ""
+print_info "Running pre-push verification checks..."
+
+# Read the push details
+remote="$1"
+url="$2"
+
+# Check if pushing to main/master branch
+while read local_ref local_sha remote_ref remote_sha; do
+    if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+        # This is a delete
+        continue
+    fi
+
+    # Extract branch name
+    branch_name=$(echo "$remote_ref" | sed 's/refs\/heads\///')
+
+    if [ "$branch_name" = "main" ] || [ "$branch_name" = "master" ]; then
+        print_info "Pushing to protected branch: $branch_name"
+
+        # Verify recent commits are GPG signed
+        print_info "Verifying GPG signatures for recent commits..."
+
+        # Get commits to be pushed
+        if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+            # New branch, check last 5 commits
+            commits_to_check=$(git rev-list --max-count=5 "$local_sha")
+        else
+            # Existing branch, check commits between remote and local
+            commits_to_check=$(git rev-list "$remote_sha".."$local_sha")
+        fi
+
+        unsigned_commits=0
+        total_commits=0
+
+        for commit in $commits_to_check; do
+            total_commits=$((total_commits + 1))
+            if ! git verify-commit "$commit" >/dev/null 2>&1; then
+                unsigned_commits=$((unsigned_commits + 1))
+                print_warning "Unsigned commit: $(git log --oneline -1 "$commit")"
+            fi
+        done
+
+        if [ $unsigned_commits -gt 0 ]; then
+            echo ""
+            print_error "$unsigned_commits out of $total_commits commits are not GPG signed!"
+            print_info "To set up GPG signing: ./bin/setup-gpg.sh"
+            print_info "To sign existing commits: git rebase --exec 'git commit --amend --no-edit -S' HEAD~$total_commits"
+            echo ""
+            echo "❓ Do you want to continue pushing unsigned commits? (y/N)"
+            read -r response
+            if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+                print_error "Push cancelled due to unsigned commits"
+                exit 1
+            fi
+            print_warning "Proceeding with unsigned commits..."
+        else
+            print_success "All $total_commits commits are properly GPG signed!"
+        fi
+    fi
+done
+
+# Run a final security audit
+print_info "Running final security audit..."
+if ! npm audit --audit-level=high --production >/dev/null 2>&1; then
+    print_warning "Security vulnerabilities detected!"
+    echo "❓ Do you want to continue pushing with security issues? (y/N)"
+    read -r response
+    if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+        print_error "Push cancelled due to security issues"
+        print_info "Run 'npm audit fix' to resolve issues"
+        exit 1
+    fi
+    print_warning "Proceeding with security issues..."
+fi
+
+print_success "Pre-push verification completed!"
+echo ""
