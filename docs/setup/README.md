@@ -20,6 +20,9 @@ npm install
 cp .env.example .env
 # Edit .env with your database credentials
 
+# Run database migrations
+npm run migrate
+
 # Start development server
 npm run dev
 ```
@@ -175,6 +178,73 @@ EXIT;
 mysql -u altus4_user -p -h localhost altus4_metadata
 ```
 
+### Database Migrations
+
+Altus 4 includes a migration system for managing database schema changes automatically.
+
+#### Migration System Overview
+
+- **Migration files** are stored in the `migrations/` directory
+- Each migration has an `up` script (e.g., `001_create_users_table.up.sql`) and a `down` script (e.g., `001_create_users_table.down.sql`)
+- The migration tool uses your environment variables for database connectivity
+- Migrations are applied in order based on their numeric prefix
+
+#### Available Migration Commands
+
+```bash
+# Apply all migrations (recommended for setup)
+npm run migrate
+
+# Apply migrations explicitly (same as above)
+npm run migrate:up
+
+# Rollback all migrations (be careful in production!)
+npm run migrate:down
+
+# Show migration status and available migrations
+npm run migrate:status
+```
+
+#### Environment Configuration for Migrations
+
+The migration system uses these environment variables:
+
+```bash
+DB_HOST=localhost        # Database host
+DB_PORT=3306            # Database port (defaults to 3306)
+DB_USERNAME=altus4_user # Database username
+DB_PASSWORD=password    # Database password
+DB_DATABASE=altus4_metadata # Database name
+```
+
+Set these in your `.env` file, and the migration script will automatically load them.
+
+#### Migration Best Practices
+
+1. **Always run migrations after cloning** the repository
+2. **Check migration status** before applying: `npm run migrate:status`
+3. **Backup your database** before running migrations in production
+4. **Test migrations** in development first
+5. **Never modify existing migration files** - create new ones instead
+
+#### Manual Migration Script Usage
+
+You can also run the migration script directly:
+
+```bash
+# Make script executable and run
+chmod +x bin/migrate.sh
+
+# Apply migrations
+./bin/migrate.sh up
+
+# Rollback migrations
+./bin/migrate.sh down
+
+# Show detailed migration status
+./bin/migrate.sh status
+```
+
 #### Optimize MySQL for Full-text Search
 
 Add these configurations to your MySQL configuration file (`/etc/mysql/mysql.conf.d/mysqld.cnf` on Ubuntu):
@@ -228,6 +298,9 @@ npm list --depth=0
 ```bash
 # Build TypeScript to JavaScript
 npm run build
+
+# Run database migrations
+npm run migrate
 
 # Verify build
 ls -la dist/
@@ -491,9 +564,10 @@ npm run format:check
 npm run type-check
 
 # Database operations
-npm run db:migrate
-npm run db:seed
-npm run db:reset
+npm run migrate         # Run all database migrations
+npm run migrate:up      # Apply migrations (explicit up)
+npm run migrate:down    # Rollback migrations
+npm run migrate:status  # Show migration status
 ```
 
 ## Troubleshooting

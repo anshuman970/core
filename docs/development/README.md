@@ -65,6 +65,16 @@ GRANT ALL PRIVILEGES ON altus4_test.* TO 'altus4_dev'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
+1. **Run Database Migrations**
+
+```bash
+# Apply all migrations to development database
+npm run migrate
+
+# Check migration status
+npm run migrate:status
+```
+
 1. **Start Development Server**
 
 ```bash

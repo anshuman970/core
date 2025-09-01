@@ -18,13 +18,14 @@ Thank you for your interest in contributing to Altus 4! This document provides g
    npm install
    cp .env.example .env
    # Configure your .env file with database and API credentials
+   npm run migrate
    npm run dev
    ```
 
 3. **Database Setup**
    - Create a MySQL database for development
    - Update .env with your database credentials
-   - The application will handle schema creation
+   - Run `npm run migrate` to apply schema migrations
 
 ## Development Workflow
 

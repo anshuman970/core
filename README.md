@@ -35,6 +35,9 @@ cd altus4 && npm install
 cp .env.example .env
 # Edit .env with your MySQL/Redis credentials
 
+# Run database migrations
+npm run migrate
+
 # Start development server
 npm run dev
 # Server starts at http://localhost:3000
@@ -42,30 +45,61 @@ npm run dev
 
 ## Database Migrations
 
-Altus 4 includes a simple migration system for managing your MySQL schema.
+Altus 4 includes a migration system for managing your MySQL schema changes.
 
-- Migration SQL files are stored in the `migrations/` directory.
-- Each migration consists of an `up` script (e.g., `001_create_users_table.up.sql`) and a corresponding `down` script (e.g., `001_create_users_table.down.sql`).
-- The CLI migration tool is a shell script located at `bin/migrate.sh`.
+- Migration SQL files are stored in the `migrations/` directory
+- Each migration consists of an `up` script (e.g., `001_create_users_table.up.sql`) and a corresponding `down` script (e.g., `001_create_users_table.down.sql`)
+- The migration tool automatically uses your environment variables for database connectivity
 
 ### Usage
 
-Run migrations from the project root:
+Run migrations using npm scripts:
 
 ```bash
 # Apply all migrations (up)
-./bin/migrate.sh up
+npm run migrate
+
+# Apply all migrations (explicit up)
+npm run migrate:up
 
 # Revert all migrations (down)
-./bin/migrate.sh down
+npm run migrate:down
 
 # Show migration status
+npm run migrate:status
+```
+
+### Environment Configuration
+
+The migration system uses the same environment variables as the application:
+
+```bash
+# Required environment variables
+DB_HOST=localhost        # Database host
+DB_PORT=3306            # Database port (optional, defaults to 3306)
+DB_USERNAME=altus4_user # Database username
+DB_PASSWORD=password    # Database password
+DB_DATABASE=altus4_meta # Database name
+```
+
+You can set these in your `.env` file or as environment variables. The migration script will automatically load your `.env` file if it exists.
+
+### Manual Script Usage
+
+You can also run the migration script directly:
+
+```bash
+# Apply all migrations
+./bin/migrate.sh up
+
+# Revert all migrations
+./bin/migrate.sh down
+
+# Show detailed migration status
 ./bin/migrate.sh status
 ```
 
-You can customize database credentials in `bin/migrate.sh` as needed for your environment.
-
-**Note:** The migration system is inspired by Laravel's artisan commands but implemented as shell scripts for simplicity and portability.
+**Note:** Ensure your database exists before running migrations. The migration system will not create the database automatically.
 
 **For comprehensive documentation, see the [`/docs`](./docs) directory.**
 
@@ -192,6 +226,9 @@ cp .env.example .env
 
 # Configure your environment variables (see Configuration section)
 nano .env
+
+# Run database migrations
+npm run migrate
 
 # Build the project
 npm run build

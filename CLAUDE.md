@@ -257,4 +257,6 @@ OPENAI_API_KEY=sk-your_openai_key
 - **Performance**: Monitor database connection usage and implement circuit breakers
 - **Scalability**: Design for horizontal scaling with stateless architecture
 - **Monitoring**: Implement proper health checks and metrics collection
-- **Documentation**: Keep API documentation up to date with code changes
+- **API Documentation**: Keep API documentation up to date with code changes and strictl no emojies
+- **Style**: Use the style of the existing code and the code documentation in the codebase.
+- **Documentation**: Keep API documentation up to date with code changes and strictl no emojies
