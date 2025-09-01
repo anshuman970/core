@@ -34,7 +34,8 @@ Altus 4 follows a layered service architecture where each service has specific r
 | **DatabaseService** | MySQL operations     | mysql2/promise                           | Connection management, query execution, schema discovery    |
 | **AIService**       | AI/ML integration    | OpenAI API                               | Semantic search, query optimization, result categorization  |
 | **CacheService**    | Caching & analytics  | Redis/ioredis                            | Search caching, analytics storage, performance optimization |
-| **UserService**     | User management      | DatabaseService                          | Authentication, user CRUD, JWT token management             |
+| **UserService**     | User management      | DatabaseService                          | User CRUD, password hashing, account management             |
+| **ApiKeyService**   | API key management   | DatabaseService                          | API key generation, validation, tiered permissions          |
 
 ## Service Documentation
 
@@ -116,22 +117,39 @@ Redis-based caching and analytics service for performance optimization.
 
 ### [UserService](./user-service.md)
 
-User management service handling authentication and user lifecycle.
+User management service handling account lifecycle and basic authentication.
 
 **Key Responsibilities:**
 
 - User registration and profile management
 - Password hashing and authentication
-- JWT token generation and validation
 - User permission and role management
 - Account lifecycle operations
 
 **Code Highlights:**
 
 - bcrypt password hashing patterns
-- JWT token management
 - User data validation and sanitization
 - Security best practices
+
+### [ApiKeyService](./api-key-service.md)
+
+API key management service for B2B authentication and authorization.
+
+**Key Responsibilities:**
+
+- Generate secure API keys with proper formatting
+- Validate API keys and extract user context
+- Manage API key lifecycle (create, update, revoke)
+- Implement tiered rate limiting and permissions
+- Track API key usage and analytics
+
+**Code Highlights:**
+
+- Secure key generation and hashing
+- Prefix-based key lookup optimization
+- Tiered permission and rate limit enforcement
+- Usage tracking and analytics
 
 ## Service Patterns
 

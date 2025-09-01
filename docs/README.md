@@ -10,8 +10,10 @@ Welcome to the comprehensive documentation for Altus 4. This documentation provi
 
 Complete API documentation with endpoints, request/response schemas, authentication, and examples.
 
-- **[API Overview](./api/README.md)** - API basics and authentication
-- **[Authentication Endpoints](./api/auth.md)** - User registration, login, and JWT management
+- **[API Overview](./api/README.md)** - API basics and API key authentication
+- **[API Key Authentication](./api-key-authentication.md)** - Complete API key setup and usage guide
+- **[Authentication Endpoints](./api/auth.md)** - User registration and account management
+- **[API Key Management](./api/keys.md)** - API key lifecycle and permissions
 - **[Database Endpoints](./api/database.md)** - Database connection management
 - **[Search Endpoints](./api/search.md)** - Search operations and analytics
 - **[Analytics Endpoints](./api/analytics.md)** - Search trends and performance metrics
@@ -38,6 +40,7 @@ Detailed documentation of each service class with code explanations.
 - **[AIService](./services/AIService.md)** - OpenAI integration and semantic enhancements
 - **[CacheService](./services/CacheService.md)** - Redis caching and analytics
 - **[UserService](./services/UserService.md)** - User authentication and management
+- **[ApiKeyService](./services/ApiKeyService.md)** - API key generation and management
 - **[Service Architecture](./services/architecture.md)** - Service design patterns and principles
 
 ### [Setup & Deployment](./setup/README.md)
@@ -84,7 +87,7 @@ Practical examples, tutorials, and code samples.
 
 - **[Basic Usage](./examples/basic-usage.md)** - Simple search implementation
 - **[Advanced Search](./examples/advanced-search.md)** - Complex search scenarios
-- **[Authentication Flow](./examples/auth-flow.md)** - Complete auth implementation
+- **[API Key Setup](./examples/api-key-setup.md)** - API key authentication implementation
 - **[Database Integration](./examples/database-integration.md)** - Connecting to MySQL databases
 - **[AI Features](./examples/ai-features.md)** - Using semantic search and AI enhancements
 - **[Custom Middleware](./examples/custom-middleware.md)** - Extending the API

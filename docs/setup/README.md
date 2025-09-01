@@ -316,7 +316,7 @@ Create environment configuration:
 # Copy example environment file
 cp .env.example .env
 
-# Generate secure secrets
+# Generate secure secrets (JWT for legacy endpoints only)
 node -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
 node -e "console.log('ENCRYPTION_KEY=' + require('crypto').randomBytes(32).toString('hex'))"
 ```
@@ -342,9 +342,9 @@ REDIS_PORT=6379
 REDIS_PASSWORD=
 
 # Security Configuration
-JWT_SECRET=your_32_character_secret_key_here
+JWT_SECRET=your_32_character_secret_key_here  # For legacy endpoints only
 ENCRYPTION_KEY=your_32_character_encryption_key
-JWT_EXPIRES_IN=7d
+JWT_EXPIRES_IN=7d  # For legacy endpoints only
 BCRYPT_ROUNDS=12
 
 # AI Configuration (optional)
@@ -442,9 +442,10 @@ curl http://localhost:3000/health/redis
 
 ### Step 6: Initial Setup
 
-#### Create First User
+#### Create First User and API Key
 
 ```bash
+# 1. Register a new user
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -452,26 +453,27 @@ curl -X POST http://localhost:3000/api/auth/register \
     "password": "SecurePassword123!",
     "name": "Admin User"
   }'
-```
 
-#### Login and Get Token
-
-```bash
+# 2. Login to get JWT token (for initial setup only)
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@example.com",
     "password": "SecurePassword123!"
   }'
+
+# 3. Create your first API key (using JWT from step 2)
+curl -X POST http://localhost:3000/api/management/setup \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-Save the JWT token for authenticated requests.
+Save the API key from step 3 - this is what you'll use for all API requests going forward.
 
 #### Add Database Connection
 
 ```bash
 curl -X POST http://localhost:3000/api/databases \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "My Database",
@@ -487,7 +489,7 @@ curl -X POST http://localhost:3000/api/databases \
 
 ```bash
 curl -X POST http://localhost:3000/api/search \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "test search",

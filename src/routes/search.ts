@@ -2,14 +2,16 @@
  * Search Routes
  *
  * Defines endpoints for executing searches, getting suggestions, and analyzing queries.
- * Uses Zod schemas for request validation and delegates logic to SearchController.
+ * Uses API key authentication and Zod schemas for request validation.
+ * Delegates logic to SearchController.
  *
  * Usage:
  *   - Mount this router at /api/v1/search in the main server
  */
 import { SearchController } from '@/controllers/SearchController';
-import type { AuthenticatedRequest } from '@/middleware/auth';
-import { authenticate } from '@/middleware/auth';
+import type { ApiKeyAuthenticatedRequest } from '@/middleware/apiKeyAuth';
+import { authenticateApiKey, requirePermission } from '@/middleware/apiKeyAuth';
+import { rateLimiter } from '@/middleware/rateLimiter';
 import { validateRequest } from '@/middleware/validation';
 import type { ApiResponse, SearchRequest, SearchResponse } from '@/types';
 import { Router } from 'express';
@@ -17,6 +19,10 @@ import { z } from 'zod';
 
 const router = Router();
 const searchController = new SearchController();
+
+// Apply rate limiting and authentication to all search routes
+router.use(rateLimiter);
+router.use(authenticateApiKey);
 
 // Validation schemas for search, suggestions, and query analysis
 const searchRequestSchema = z.object({
@@ -48,9 +54,9 @@ const analyzeQuerySchema = z.object({
  */
 router.post(
   '/',
-  authenticate,
+  requirePermission('search'),
   validateRequest({ body: searchRequestSchema }),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: ApiKeyAuthenticatedRequest, res) => {
     try {
       const searchRequest: SearchRequest = {
         ...req.body,
@@ -65,7 +71,8 @@ router.post(
         meta: {
           timestamp: new Date(),
           requestId: req.get('X-Request-ID') || 'unknown',
-          version: '0.1.0',
+          version: process.env.npm_package_version || '0.1.0',
+          apiKeyTier: req.apiKey?.rateLimitTier,
         },
       };
 
@@ -88,9 +95,9 @@ router.post(
  */
 router.get(
   '/suggestions',
-  authenticate,
+  requirePermission('search'),
   validateRequest({ query: suggestionRequestSchema }),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: ApiKeyAuthenticatedRequest, res) => {
     try {
       const suggestions = await searchController.getSearchSuggestions({
         query: req.query.query as string,
@@ -105,7 +112,8 @@ router.get(
         meta: {
           timestamp: new Date(),
           requestId: req.get('X-Request-ID') || 'unknown',
-          version: '0.1.0',
+          version: process.env.npm_package_version || '0.1.0',
+          apiKeyTier: req.apiKey?.rateLimitTier,
         },
       };
 
@@ -128,9 +136,9 @@ router.get(
  */
 router.post(
   '/analyze',
-  authenticate,
+  requirePermission('analytics'),
   validateRequest({ body: analyzeQuerySchema }),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: ApiKeyAuthenticatedRequest, res) => {
     try {
       const analysis = await searchController.analyzeQuery({
         query: req.body.query,
@@ -144,7 +152,8 @@ router.post(
         meta: {
           timestamp: new Date(),
           requestId: req.get('X-Request-ID') || 'unknown',
-          version: '0.1.0',
+          version: process.env.npm_package_version || '0.1.0',
+          apiKeyTier: req.apiKey?.rateLimitTier,
         },
       };
 
@@ -162,66 +171,76 @@ router.post(
 );
 
 /**
- * GET /api/v1/search/trends/:userId
+ * GET /api/v1/search/trends
  * Get search trends and analytics for a user
  */
-router.get('/trends', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
-    const trends = await searchController.getUserTrends(req.user!.id);
+router.get(
+  '/trends',
+  requirePermission('analytics'),
+  async (req: ApiKeyAuthenticatedRequest, res) => {
+    try {
+      const trends = await searchController.getUserTrends(req.user!.id);
 
-    const response: ApiResponse = {
-      success: true,
-      data: trends,
-      meta: {
-        timestamp: new Date(),
-        requestId: req.get('X-Request-ID') || 'unknown',
-        version: '0.1.0',
-      },
-    };
+      const response: ApiResponse = {
+        success: true,
+        data: trends,
+        meta: {
+          timestamp: new Date(),
+          requestId: req.get('X-Request-ID') || 'unknown',
+          version: process.env.npm_package_version || '0.1.0',
+          apiKeyTier: req.apiKey?.rateLimitTier,
+        },
+      };
 
-    res.json(response);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'TRENDS_FAILED',
-        message: error instanceof Error ? error.message : 'Failed to get trends',
-      },
-    } as ApiResponse);
+      res.json(response);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'TRENDS_FAILED',
+          message: error instanceof Error ? error.message : 'Failed to get trends',
+        },
+      } as ApiResponse);
+    }
   }
-});
+);
 
 /**
  * GET /api/v1/search/history
  * Get user's search history
  */
-router.get('/history', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
-    const limit = parseInt(req.query.limit as string) || 20;
-    const offset = parseInt(req.query.offset as string) || 0;
+router.get(
+  '/history',
+  requirePermission('search'),
+  async (req: ApiKeyAuthenticatedRequest, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const offset = parseInt(req.query.offset as string) || 0;
 
-    const history = await searchController.getSearchHistory(req.user!.id, limit, offset);
+      const history = await searchController.getSearchHistory(req.user!.id, limit, offset);
 
-    const response: ApiResponse = {
-      success: true,
-      data: history,
-      meta: {
-        timestamp: new Date(),
-        requestId: req.get('X-Request-ID') || 'unknown',
-        version: '0.1.0',
-      },
-    };
+      const response: ApiResponse = {
+        success: true,
+        data: history,
+        meta: {
+          timestamp: new Date(),
+          requestId: req.get('X-Request-ID') || 'unknown',
+          version: process.env.npm_package_version || '0.1.0',
+          apiKeyTier: req.apiKey?.rateLimitTier,
+        },
+      };
 
-    res.json(response);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'HISTORY_FAILED',
-        message: error instanceof Error ? error.message : 'Failed to get search history',
-      },
-    } as ApiResponse);
+      res.json(response);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'HISTORY_FAILED',
+          message: error instanceof Error ? error.message : 'Failed to get search history',
+        },
+      } as ApiResponse);
+    }
   }
-});
+);
 
 export { router as searchRoutes };

@@ -8,16 +8,16 @@ This section provides comprehensive code examples, tutorials, and real-world use
 
 ### Basic Search Implementation
 
-**Simple search with authentication:**
+**Simple search with API key authentication:**
 
 ```javascript
-// Basic search example
+// Basic search example with API key
 const API_BASE = 'http://localhost:3000/api';
-let authToken = '';
+let apiKey = '';
 
-// 1. Register and login
-async function authenticate() {
-  // Register user
+// 1. Setup API key (one-time setup)
+async function setupApiKey() {
+  // First, register and login to get initial JWT
   const registerResponse = await fetch(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -28,6 +28,7 @@ async function authenticate() {
     }),
   });
 
+  let jwtToken;
   if (registerResponse.status === 409) {
     // User already exists, just login
     const loginResponse = await fetch(`${API_BASE}/auth/login`, {
@@ -38,15 +39,23 @@ async function authenticate() {
         password: 'SecurePassword123!',
       }),
     });
-
     const loginData = await loginResponse.json();
-    authToken = loginData.data.token;
+    jwtToken = loginData.data.token;
   } else {
     const registerData = await registerResponse.json();
-    authToken = registerData.data.token;
+    jwtToken = registerData.data.token;
   }
 
-  console.log('Authenticated successfully');
+  // Create API key using JWT token (one-time setup)
+  const apiKeyResponse = await fetch(`${API_BASE}/management/setup`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${jwtToken}` },
+  });
+
+  const apiKeyData = await apiKeyResponse.json();
+  apiKey = apiKeyData.data.secretKey; // Save this securely
+
+  console.log('API key created successfully:', apiKey.substring(0, 20) + '...');
 }
 
 // 2. Add database connection
@@ -54,7 +63,7 @@ async function addDatabase() {
   const response = await fetch(`${API_BASE}/databases`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${authToken}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -76,7 +85,7 @@ async function searchDatabase(databaseId, query) {
   const response = await fetch(`${API_BASE}/search`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${authToken}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -95,9 +104,14 @@ async function searchDatabase(databaseId, query) {
 // Usage
 async function main() {
   try {
-    await authenticate();
-    const databaseId = await addDatabase();
+    // One-time setup (save API key for future use)
+    if (!apiKey) {
+      await setupApiKey();
+      // In production, save apiKey securely and load it
+      // localStorage.setItem('altus4ApiKey', apiKey);
+    }
 
+    const databaseId = await addDatabase();
     const results = await searchDatabase(databaseId, 'user authentication');
 
     console.log('Search Results:');

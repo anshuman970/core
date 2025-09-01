@@ -149,7 +149,7 @@ Altus 4 bridges this gap by enhancing MySQL's existing full-text search capabili
 ### Security & Performance
 
 - **Encrypted Credentials**: Database connection credentials are encrypted at rest
-- **JWT Authentication**: Secure token-based authentication with configurable expiration
+- **API Key Authentication**: B2B-friendly API key authentication with tiered rate limiting
 - **SQL Injection Prevention**: Parameterized queries and input sanitization
 - **Connection Pooling**: Optimized database connection management
 - **Redis Caching**: Intelligent caching for improved response times
@@ -183,7 +183,7 @@ Altus 4 follows a layered architecture pattern with four primary components:
 - **Cache**: Redis 6.0+ for performance optimization
 - **AI Integration**: OpenAI API (GPT-3.5/GPT-4) for semantic capabilities
 - **Validation**: Zod for runtime type checking and validation
-- **Authentication**: JWT with bcrypt for password hashing
+- **Authentication**: API keys with bcrypt for password hashing
 - **Logging**: Winston with structured logging
 - **Testing**: Jest with comprehensive test coverage
 
@@ -307,9 +307,9 @@ DB_DATABASE=altus4_metadata # MySQL database name
 #### Security Configuration
 
 ```bash
-JWT_SECRET=your_32_char_secret    # JWT signing secret (32+ characters)
+JWT_SECRET=your_32_char_secret    # JWT signing secret (for initial setup only)
 ENCRYPTION_KEY=your_32_char_key   # Encryption key for credentials
-JWT_EXPIRES_IN=7d                 # JWT token expiration
+JWT_EXPIRES_IN=7d                 # JWT token expiration (for bootstrapping)
 ```
 
 #### Redis Configuration
@@ -377,9 +377,10 @@ Expected response:
 
 #### Authentication
 
-Register a new user:
+Register a new user and get your first API key:
 
 ```bash
+# 1. Register a new user
 curl -X POST http://localhost:3000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -387,18 +388,21 @@ curl -X POST http://localhost:3000/api/v1/auth/register \
     "password": "secure_password",
     "name": "Test User"
   }'
-```
 
-Login to get JWT token:
-
-```bash
+# 2. Login to get JWT token (for initial setup only)
 curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
     "password": "secure_password"
   }'
+
+# 3. Create your first API key (using JWT token from login)
+curl -X POST http://localhost:3000/api/v1/management/setup \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
+
+**Note**: After getting your API key, use it for all subsequent requests instead of JWT tokens.
 
 #### Database Management
 
@@ -406,7 +410,7 @@ Add a database connection:
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/databases \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "My Database",
@@ -424,7 +428,7 @@ Execute a search:
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/search \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "search terms",
@@ -439,33 +443,35 @@ curl -X POST http://localhost:3000/api/v1/search \
 
 ### Authentication Endpoints
 
-| Method | Endpoint                | Description       | Authentication |
-| ------ | ----------------------- | ----------------- | -------------- |
-| POST   | `/api/v1/auth/register` | Register new user | None           |
-| POST   | `/api/v1/auth/login`    | User login        | None           |
-| POST   | `/api/v1/auth/logout`   | User logout       | Bearer Token   |
-| GET    | `/api/v1/auth/profile`  | Get user profile  | Bearer Token   |
+| Method | Endpoint                   | Description          | Authentication |
+| ------ | -------------------------- | -------------------- | -------------- |
+| POST   | `/api/v1/auth/register`    | Register new user    | None           |
+| POST   | `/api/v1/auth/login`       | User login           | None           |
+| POST   | `/api/v1/management/setup` | Create first API key | JWT Token      |
+| POST   | `/api/v1/keys`             | Create new API key   | API Key        |
+| GET    | `/api/v1/keys`             | List API keys        | API Key        |
+| DELETE | `/api/v1/keys/:id`         | Revoke API key       | API Key        |
 
 ### Database Management Endpoints
 
 | Method | Endpoint                       | Description                | Authentication |
 | ------ | ------------------------------ | -------------------------- | -------------- |
-| GET    | `/api/v1/databases`            | List user databases        | Bearer Token   |
-| POST   | `/api/v1/databases`            | Add database connection    | Bearer Token   |
-| GET    | `/api/v1/databases/:id`        | Get database details       | Bearer Token   |
-| PUT    | `/api/v1/databases/:id`        | Update database connection | Bearer Token   |
-| DELETE | `/api/v1/databases/:id`        | Remove database connection | Bearer Token   |
-| GET    | `/api/v1/databases/:id/schema` | Get database schema        | Bearer Token   |
+| GET    | `/api/v1/databases`            | List user databases        | API Key        |
+| POST   | `/api/v1/databases`            | Add database connection    | API Key        |
+| GET    | `/api/v1/databases/:id`        | Get database details       | API Key        |
+| PUT    | `/api/v1/databases/:id`        | Update database connection | API Key        |
+| DELETE | `/api/v1/databases/:id`        | Remove database connection | API Key        |
+| GET    | `/api/v1/databases/:id/schema` | Get database schema        | API Key        |
 
 ### Search Endpoints
 
 | Method | Endpoint                     | Description               | Authentication |
 | ------ | ---------------------------- | ------------------------- | -------------- |
-| POST   | `/api/v1/search`             | Execute search            | Bearer Token   |
-| GET    | `/api/v1/search/suggestions` | Get search suggestions    | Bearer Token   |
-| POST   | `/api/v1/search/analyze`     | Analyze query performance | Bearer Token   |
-| GET    | `/api/v1/search/trends`      | Get search trends         | Bearer Token   |
-| GET    | `/api/v1/search/history`     | Get search history        | Bearer Token   |
+| POST   | `/api/v1/search`             | Execute search            | API Key        |
+| GET    | `/api/v1/search/suggestions` | Get search suggestions    | API Key        |
+| POST   | `/api/v1/search/analyze`     | Analyze query performance | API Key        |
+| GET    | `/api/v1/search/trends`      | Get search trends         | API Key        |
+| GET    | `/api/v1/search/history`     | Get search history        | API Key        |
 
 ### Request/Response Formats
 
@@ -490,14 +496,14 @@ interface ApiResponse<T> {
 
 ### Error Codes
 
-| Code                  | HTTP Status | Description                       |
-| --------------------- | ----------- | --------------------------------- |
-| `UNAUTHORIZED`        | 401         | Missing or invalid authentication |
-| `FORBIDDEN`           | 403         | Insufficient permissions          |
-| `NOT_FOUND`           | 404         | Resource not found                |
-| `VALIDATION_ERROR`    | 400         | Invalid request data              |
-| `RATE_LIMIT_EXCEEDED` | 429         | Too many requests                 |
-| `INTERNAL_ERROR`      | 500         | Server error                      |
+| Code                       | HTTP Status | Description                        |
+| -------------------------- | ----------- | ---------------------------------- |
+| `INVALID_API_KEY`          | 401         | Missing or invalid API key         |
+| `INSUFFICIENT_PERMISSIONS` | 403         | API key lacks required permissions |
+| `NOT_FOUND`                | 404         | Resource not found                 |
+| `VALIDATION_ERROR`         | 400         | Invalid request data               |
+| `RATE_LIMIT_EXCEEDED`      | 429         | Too many requests                  |
+| `INTERNAL_ERROR`           | 500         | Server error                       |
 
 ## Documentation
 
@@ -506,6 +512,7 @@ This README provides a quick overview. For comprehensive documentation:
 ### **Complete Documentation**
 
 - **[Full Documentation](./docs/README.md)** - Complete documentation index
+- **[API Key Authentication](./docs/api-key-authentication.md)** - API key setup and usage guide
 - **[API Reference](./docs/api/README.md)** - Detailed API endpoints and schemas
 - **[Architecture](./docs/architecture/README.md)** - System design and patterns
 - **[Services](./docs/services/README.md)** - Service classes with code explanations

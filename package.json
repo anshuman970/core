@@ -1,6 +1,6 @@
 {
   "name": "@altus4/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI-Enhanced MySQL Full-Text Search Engine",
   "main": "dist/index.js",
   "scripts": {

@@ -196,6 +196,7 @@ export interface ApiResponse<T = any> {
     timestamp: Date;
     requestId: string;
     version: string;
+    apiKeyTier?: string;
   };
 }
 

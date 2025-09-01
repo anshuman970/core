@@ -12,8 +12,10 @@ import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimiter } from '@/middleware/rateLimiter';
 import { requestLogger } from '@/middleware/requestLogger';
 import { analyticsRoutes } from '@/routes/analytics';
+import apiKeyRoutes from '@/routes/apiKeys';
 import { authRoutes } from '@/routes/auth';
 import { databaseRoutes } from '@/routes/database';
+import managementRoutes from '@/routes/management';
 import { searchRoutes } from '@/routes/search';
 import { logger } from '@/utils/logger';
 import cors from 'cors';
@@ -83,7 +85,7 @@ class AltusServer {
   }
 
   /**
-   * Set up API routes for analytics, authentication, database, and search.
+   * Set up API routes for analytics, authentication, database, search, and API key management.
    */
   private setupRoutes(): void {
     const apiV1 = express.Router();
@@ -93,6 +95,8 @@ class AltusServer {
     apiV1.use('/search', searchRoutes);
     apiV1.use('/databases', databaseRoutes);
     apiV1.use('/analytics', analyticsRoutes);
+    apiV1.use('/keys', apiKeyRoutes);
+    apiV1.use('/management', managementRoutes);
 
     // Mount API version
     this.app.use('/api/v1', apiV1);

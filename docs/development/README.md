@@ -99,7 +99,8 @@ altus4/
 │   │   ├── SearchController.ts  # Search endpoints
 │   │   └── DatabaseController.ts # Database management
 │   ├── middleware/              # Express middleware
-│   │   ├── auth.ts             # JWT authentication
+│   │   ├── auth.ts             # Legacy JWT authentication
+│   │   ├── apiKeyAuth.ts       # API key authentication
 │   │   ├── errorHandler.ts     # Error handling
 │   │   ├── rateLimiter.ts      # Rate limiting
 │   │   └── validation.ts       # Request validation
@@ -112,6 +113,7 @@ altus4/
 │   │   ├── DatabaseService.ts  # MySQL operations
 │   │   ├── AIService.ts        # OpenAI integration
 │   │   ├── CacheService.ts     # Redis operations
+│   │   ├── ApiKeyService.ts    # API key management
 │   │   └── UserService.ts      # User management
 │   ├── types/                   # TypeScript definitions
 │   │   └── index.ts            # Shared type definitions
@@ -375,7 +377,7 @@ export class AnalyticsController {
 import { Router } from 'express';
 import { z } from 'zod';
 import { AnalyticsController } from '@/controllers/AnalyticsController';
-import { authenticate } from '@/middleware/auth';
+import { authenticateApiKey, requirePermission } from '@/middleware/apiKeyAuth';
 import { validateRequest } from '@/middleware/validation';
 
 const router = Router();
@@ -390,7 +392,8 @@ const generateReportSchema = z.object({
 
 router.get(
   '/report',
-  authenticate,
+  authenticateApiKey,
+  requirePermission('analytics'),
   validateRequest(generateReportSchema),
   analyticsController.generateReport
 );
@@ -741,36 +744,76 @@ const [rows] = await connection.execute(query, [searchTerm, category, limit]);
 ### Authentication & Authorization
 
 ```typescript
-// JWT token validation
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+// API key authentication
+export const authenticateApiKey = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) {
-      throw new AppError('UNAUTHORIZED', 'Authentication required', 401);
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      throw new AppError('NO_API_KEY', 'Authorization header missing', 401);
     }
 
-    const decoded = jwt.verify(token, config.jwt.secret) as JWTPayload;
-    const user = await userService.getUserById(decoded.userId);
-
-    if (!user) {
-      throw new AppError('UNAUTHORIZED', 'Invalid token', 401);
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      throw new AppError(
+        'INVALID_AUTH_FORMAT',
+        'Authorization header must be in format: Bearer <api_key>',
+        401
+      );
     }
 
-    req.user = user;
+    const apiKey = parts[1];
+    if (!apiKey.startsWith('altus4_sk_')) {
+      throw new AppError('INVALID_API_KEY_FORMAT', 'API key must start with altus4_sk_', 401);
+    }
+
+    const result = await apiKeyService.validateApiKey(apiKey);
+    if (!result) {
+      throw new AppError('INVALID_API_KEY', 'Invalid or expired API key', 401);
+    }
+
+    const clientIp = req.ip || req.connection?.remoteAddress || 'unknown';
+    await apiKeyService.updateLastUsedIp(result.apiKey.id, clientIp);
+
+    req.user = result.user;
+    req.apiKey = result.apiKey;
     next();
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      throw new AppError('UNAUTHORIZED', 'Invalid token', 401);
+    if (error instanceof AppError) {
+      throw error;
     }
-    throw error;
+    throw new AppError('AUTH_ERROR', 'Authentication failed', 401);
   }
 };
 
-// Role-based authorization
-export const authorize = (roles: string[]) => {
+// Permission-based authorization for API keys
+export const requirePermission = (permission: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      throw new AppError('FORBIDDEN', 'Insufficient permissions', 403);
+    if (!req.apiKey) {
+      throw new AppError('UNAUTHORIZED', 'Authentication required', 401);
+    }
+
+    if (!req.apiKey.permissions.includes(permission)) {
+      throw new AppError('INSUFFICIENT_PERMISSIONS', `Permission '${permission}' required`, 403, {
+        required: permission,
+        available: req.apiKey.permissions,
+      });
+    }
+    next();
+  };
+};
+
+// Role-based authorization
+export const requireRole = (role: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new AppError('UNAUTHORIZED', 'Authentication required', 401);
+    }
+
+    if (req.user.role !== 'admin' && req.user.role !== role) {
+      throw new AppError('FORBIDDEN', `${role} role required`, 403, {
+        required: role,
+        current: req.user.role,
+      });
     }
     next();
   };

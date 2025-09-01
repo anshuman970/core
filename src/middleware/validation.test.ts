@@ -1,6 +1,6 @@
-import { validateRequest } from './validation';
 import type { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
+import { validateRequest } from './validation';
 
 const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
   body: {},
@@ -88,7 +88,7 @@ describe('Validation Middleware', () => {
         meta: {
           timestamp: expect.any(Date),
           requestId: 'test-request-id',
-          version: '0.1.0',
+          version: '0.2.0',
         },
       });
       expect(next).not.toHaveBeenCalled();
@@ -127,7 +127,7 @@ describe('Validation Middleware', () => {
         meta: {
           timestamp: expect.any(Date),
           requestId: 'test-request-id',
-          version: '0.1.0',
+          version: '0.2.0',
         },
       });
     });
@@ -164,7 +164,7 @@ describe('Validation Middleware', () => {
         meta: {
           timestamp: expect.any(Date),
           requestId: 'test-request-id',
-          version: '0.1.0',
+          version: '0.2.0',
         },
       });
     });
@@ -216,7 +216,7 @@ describe('Validation Middleware', () => {
         meta: {
           timestamp: expect.any(Date),
           requestId: 'test-request-id',
-          version: '0.1.0',
+          version: '0.2.0',
         },
       });
     });
@@ -285,7 +285,7 @@ describe('Validation Middleware', () => {
         meta: {
           timestamp: expect.any(Date),
           requestId: 'test-request-id',
-          version: '0.1.0',
+          version: '0.2.0',
         },
       });
     });
@@ -406,7 +406,7 @@ describe('Validation Middleware', () => {
         meta: {
           timestamp: expect.any(Date),
           requestId: 'unknown',
-          version: '0.1.0',
+          version: '0.2.0',
         },
       });
     });

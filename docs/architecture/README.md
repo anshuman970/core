@@ -76,9 +76,9 @@ Altus 4 follows a layered architecture pattern designed for scalability, maintai
 ### API Layer
 
 - **Express.js Server**: RESTful API endpoints with middleware pipeline
-- **Authentication**: JWT-based authentication with refresh tokens
+- **Authentication**: API key-based authentication with tiered rate limiting
 - **Validation**: Zod schema validation for all endpoints
-- **Rate Limiting**: Redis-backed rate limiting per user/endpoint
+- **Rate Limiting**: Redis-backed rate limiting per API key tier
 - **Error Handling**: Centralized error handling with structured responses
 - **Request Logging**: Comprehensive request/response logging with correlation IDs
 
@@ -226,25 +226,25 @@ JSON Response to Client
 ### Authentication Flow
 
 ```text
-Login Request
+Registration/Login
       ↓
-UserService.loginUser()
+Initial JWT Token (Bootstrap Only)
       ↓
-Password Verification (bcrypt)
+API Key Creation
       ↓
-JWT Token Generation
+Response with API Key
       ↓
-Response with JWT + Refresh Token
+Subsequent Requests with API Key
       ↓
-Subsequent Requests with JWT
-      ↓
-JWT Verification Middleware
+API Key Verification Middleware
       ↓
 Request Processing
 ```
 
+#### Legacy JWT Flow (Bootstrap Only)
+
 ```text
-Login Request
+Login Request (for API key creation only)
   ↓
 UserService.loginUser()
   ↓
@@ -254,21 +254,21 @@ JWT Token Generation
   ↓
 Response with JWT + Refresh Token
   ↓
-Subsequent Requests with JWT
+Use JWT to Create API Key
   ↓
 JWT Verification Middleware
   ↓
-Request Processing
+API Key Creation Endpoint
 ```
 
 ## Security Architecture
 
 ### Authentication & Authorization
 
-- **JWT Tokens**: Stateless authentication with configurable expiration
-- **Refresh Tokens**: Secure token renewal without re-authentication
-- **Password Hashing**: bcrypt with configurable salt rounds
-- **Role-based Access**: User roles for feature access control
+- **API Keys**: Long-lived credentials for B2B service integration
+- **Tiered Permissions**: Scoped permissions per API key (search, analytics, admin)
+- **Environment Separation**: Test and live API key environments
+- **Role-based Access**: User roles for administrative access control
 
 ### Data Protection
 
@@ -279,10 +279,10 @@ Request Processing
 
 ### Rate Limiting
 
-- **Per-user Limits**: Different limits for authenticated vs anonymous users
-- **Per-endpoint Limits**: Endpoint-specific rate limiting
+- **Tiered Limits**: Rate limits based on API key tier (free/pro/enterprise)
+- **Per-API Key**: Individual rate limiting per API key
 - **Sliding Window**: Redis-based sliding window rate limiting
-- **Graceful Degradation**: Informative error responses when limits exceeded
+- **Graceful Degradation**: Informative error responses with upgrade suggestions
 
 ## Performance Architecture
 

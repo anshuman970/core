@@ -33,7 +33,7 @@ src/
 - **Database**: MySQL 8.0+ (for client databases and metadata storage)
 - **Cache**: Redis (for performance optimization and analytics)
 - **AI Integration**: OpenAI API (GPT models for semantic enhancement)
-- **Authentication**: JWT-based with bcrypt password hashing
+- **Authentication**: API key-based with SHA-256 hashing and bcrypt password hashing for user accounts
 - **Validation**: Zod schemas for request/response validation
 - **Logging**: Winston with structured logging
 - **Development**: ESLint, Prettier, Jest for testing
@@ -112,7 +112,7 @@ src/
 
 - Redis caching for frequently accessed data and search results
 - Rate limiting with IP-based throttling
-- JWT authentication with role-based access control
+- API key authentication with role-based access control and permission scoping
 - SQL injection prevention and input sanitization
 
 ## Environment Setup
@@ -126,7 +126,7 @@ DB_HOST=localhost
 DB_USERNAME=altus4_user
 DB_PASSWORD=secure_password
 DB_DATABASE=altus4_metadata
-JWT_SECRET=minimum_32_character_secret_key
+JWT_SECRET=minimum_32_character_secret_key  # For legacy endpoints only
 REDIS_HOST=localhost
 REDIS_PORT=6379
 OPENAI_API_KEY=sk-your_openai_key
@@ -147,7 +147,12 @@ OPENAI_API_KEY=sk-your_openai_key
 ### Authentication
 
 - `POST /api/v1/auth/register` - User registration
-- `POST /api/v1/auth/login` - User login with JWT token
+- `POST /api/v1/auth/login` - User login with JWT token (for API key creation only)
+- `POST /api/v1/management/setup` - Create initial API key using JWT authentication
+- `POST /api/v1/api-keys` - Create new API keys
+- `GET /api/v1/api-keys` - List API keys
+- `PUT /api/v1/api-keys/:keyId` - Update API key
+- `DELETE /api/v1/api-keys/:keyId` - Revoke API key
 
 ### Search Operations
 

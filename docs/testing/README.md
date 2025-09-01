@@ -119,7 +119,7 @@ DB_DATABASE=altus4_test
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
-JWT_SECRET=test-secret-key-for-testing-only
+JWT_SECRET=test-secret-key-for-testing-only  # For testing legacy endpoints
 OPENAI_API_KEY=test-key
 LOG_LEVEL=error
 BCRYPT_ROUNDS=4
@@ -650,6 +650,7 @@ export class TestHelpers {
     };
   }
 
+  // Generate JWT token for testing legacy/bootstrap endpoints only
   static generateTestToken(user: any): string {
     return jwt.sign(
       { userId: user.id, email: user.email },
