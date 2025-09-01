@@ -38,7 +38,7 @@ Altus 4 follows a layered service architecture where each service has specific r
 
 ## Service Documentation
 
-### [SearchService](./SearchService.md)
+### [SearchService](./search-service.md)
 
 The core search orchestration engine that coordinates multi-database searches with AI enhancements.
 
@@ -57,7 +57,7 @@ The core search orchestration engine that coordinates multi-database searches wi
 - AI service integration patterns
 - Error handling and fallback mechanisms
 
-### [DatabaseService](./DatabaseService.md)
+### [DatabaseService](./database-service.md)
 
 MySQL database connection management and query execution service.
 
@@ -76,7 +76,7 @@ MySQL database connection management and query execution service.
 - Schema introspection and metadata extraction
 - Security patterns for credential handling
 
-### [AIService](./AIService.md)
+### [AIService](./ai-service.md)
 
 OpenAI integration service for AI-enhanced search capabilities.
 
@@ -95,7 +95,7 @@ OpenAI integration service for AI-enhanced search capabilities.
 - Error handling for external API failures
 - Rate limiting and quota management
 
-### [CacheService](./CacheService.md)
+### [CacheService](./cache-service.md)
 
 Redis-based caching and analytics service for performance optimization.
 
@@ -114,7 +114,7 @@ Redis-based caching and analytics service for performance optimization.
 - Analytics data modeling
 - Performance monitoring patterns
 
-### [UserService](./UserService.md)
+### [UserService](./user-service.md)
 
 User management service handling authentication and user lifecycle.
 
@@ -331,8 +331,8 @@ export class NewService implements INewService {
 
 **Next Steps:**
 
-- [Deep dive into SearchService](./SearchService.md)
-- [Understanding DatabaseService](./DatabaseService.md)
-- [AI Integration Patterns](./AIService.md)
-- [Caching Strategies](./CacheService.md)
-- [Authentication Flows](./UserService.md)
+- [Deep dive into SearchService](./search-service.md)
+- [Understanding DatabaseService](./database-service.md)
+- [AI Integration Patterns](./ai-service.md)
+- [Caching Strategies](./cache-service.md)
+- [Authentication Flows](./user-service.md)
