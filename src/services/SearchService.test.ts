@@ -101,7 +101,7 @@ describe('SearchService', () => {
         mockCacheService.get.mockResolvedValue(cachedResponse);
 
         // Act
-        const results = await searchService.performSearch(query);
+        const results = await searchService.performSearch(query, { databases: ['test_db'] });
 
         // Assert
         expect(results.success).toBe(true);

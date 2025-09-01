@@ -152,6 +152,7 @@ export class TestHelpers {
     await connection.execute('DELETE FROM search_analytics');
     await connection.execute('DELETE FROM database_connections');
     await connection.execute('DELETE FROM users');
+    await connection.execute('DELETE FROM test_content');
 
     // Clean Redis
     await redis.flushdb();
@@ -168,6 +169,18 @@ export class TestHelpers {
     }>
   ): Promise<void> {
     const connection = await this.getDbConnection();
+
+    // Create test_content table if it doesn't exist
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS test_content (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        category VARCHAR(100) DEFAULT 'general',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FULLTEXT(title, content)
+      ) ENGINE=InnoDB
+    `);
 
     for (const item of content) {
       await connection.execute(

@@ -38,18 +38,47 @@ export const authenticate = async (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader?.startsWith('Bearer ')) {
+    // Check if authorization header exists
+    if (!authHeader) {
       res.status(401).json({
         success: false,
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authorization header missing or invalid',
+          code: 'NO_TOKEN',
+          message: 'Authorization header missing',
         },
       } as ApiResponse);
       return;
     }
 
-    const token = authHeader.substring(7);
+    // Normalize and check header format - handle case insensitive and whitespace
+    const normalizedHeader = authHeader.trim();
+    const bearerMatch = normalizedHeader.match(/^bearer\s*(.*)$/i);
+
+    if (!bearerMatch) {
+      res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_AUTH_FORMAT',
+          message: 'Authorization header must be in format: Bearer <token>',
+        },
+      } as ApiResponse);
+      return;
+    }
+
+    const token = bearerMatch[1].trim();
+
+    // Check if token is empty
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        error: {
+          code: 'NO_TOKEN',
+          message: 'Token is missing from authorization header',
+        },
+      } as ApiResponse);
+      return;
+    }
+
     const decoded = jwt.verify(token, config.jwtSecret) as any;
 
     req.user = {
@@ -60,12 +89,24 @@ export const authenticate = async (
     };
 
     next();
-  } catch (_error) {
+  } catch (error: any) {
+    // Handle JWT specific errors
+    let errorCode = 'INVALID_TOKEN';
+    let errorMessage = 'Invalid or expired token';
+
+    if (error.name === 'TokenExpiredError') {
+      errorCode = 'TOKEN_EXPIRED';
+      errorMessage = 'Token has expired';
+    } else if (error.name === 'JsonWebTokenError') {
+      errorCode = 'INVALID_TOKEN';
+      errorMessage = 'Invalid token format or signature';
+    }
+
     res.status(401).json({
       success: false,
       error: {
-        code: 'INVALID_TOKEN',
-        message: 'Invalid or expired token',
+        code: errorCode,
+        message: errorMessage,
       },
     } as ApiResponse);
   }

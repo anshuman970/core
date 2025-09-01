@@ -2,7 +2,7 @@ import { TestHelpers } from '@tests/utils/test-helpers';
 import jwt from 'jsonwebtoken';
 import { authenticate } from './auth';
 
-describe.skip('Auth Middleware', () => {
+describe('Auth Middleware', () => {
   // Auth tests require MySQL to be running
   let mockReq: any;
   let mockRes: any;

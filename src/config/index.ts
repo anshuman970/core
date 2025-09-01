@@ -15,8 +15,8 @@ if (isTestEnvironment) {
   process.env.JWT_SECRET =
     process.env.JWT_SECRET || 'test_jwt_secret_key_for_testing_at_least_32_characters_long';
   process.env.DB_HOST = process.env.DB_HOST || 'localhost';
-  process.env.DB_USERNAME = process.env.DB_USERNAME || 'test_user';
-  process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'test_password';
+  process.env.DB_USERNAME = process.env.DB_USERNAME || 'root';
+  process.env.DB_PASSWORD = process.env.DB_PASSWORD || '';
   process.env.DB_DATABASE = process.env.DB_DATABASE || 'altus4_test';
 }
 

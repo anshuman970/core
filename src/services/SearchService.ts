@@ -63,6 +63,52 @@ export class SearchService {
     logger.info(`Search request: ${request.query} by user ${request.userId}`);
 
     try {
+      // Handle empty query - return empty results instead of error
+      if (!request.query || request.query.trim().length === 0) {
+        return {
+          results: [],
+          categories: [],
+          suggestions: [],
+          trends: [],
+          queryOptimization: [],
+          totalCount: 0,
+          executionTime: Date.now() - startTime,
+          page: 1,
+          limit: request.limit || 20,
+        };
+      }
+
+      if (request.query.length > 1000) {
+        throw new Error('Search query too long (maximum 1000 characters)');
+      }
+
+      // Check for queries containing only special characters
+      const specialCharsOnly = /^[!@#$%^&*()\-_+=[\]{}|\\:";'<>?,./~`]+$/;
+      if (specialCharsOnly.test(request.query.trim())) {
+        throw new Error('Search query must contain at least some alphanumeric characters');
+      }
+
+      // Handle empty databases array - return empty results instead of error
+      if (!request.databases || request.databases.length === 0) {
+        return {
+          results: [],
+          categories: [],
+          suggestions: [],
+          trends: [],
+          queryOptimization: [
+            {
+              type: 'query',
+              description:
+                'No databases specified for search. Please select at least one database.',
+              impact: 'high',
+            },
+          ],
+          totalCount: 0,
+          executionTime: Date.now() - startTime,
+          page: 1,
+          limit: request.limit || 20,
+        };
+      }
       // Generate a unique cache key for this request
       const cacheKey = this.generateCacheKey(request);
 
