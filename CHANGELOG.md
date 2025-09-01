@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-01-15
 
-### Major Features
+### Added
 
 #### **API Key Authentication System**
 
@@ -27,9 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Enhanced rate limiting** - API key tier-based rate limiting with Redis integration
 - **Improved middleware architecture** - Better separation of concerns and testability
 
-### Testing Excellence
-
-#### **100% Test Coverage Achievement**
+#### **Testing Infrastructure**
 
 - **508 total tests** across 21 test suites with **100% pass rate**
 - **Comprehensive unit tests** for all new API key components
@@ -37,26 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Advanced Jest mocking** with module-level instantiation handling
 - **Security test coverage** for all authentication scenarios
 - **Edge case validation** for robust error handling
-
-#### **Test Infrastructure Improvements**
-
 - **Complex middleware testing** with proper mock setup for module-level instantiation
-- **Rate limiter test refinements** with accurate response structure validation
-- **Error message standardization** across all test expectations
 - **Mock service architecture** for reliable, isolated unit testing
-
-### Documentation Updates
-
-#### **Comprehensive API Key Documentation**
-
-- **Updated README.md** with complete API key authentication guide
-- **API documentation refresh** in `docs/api/README.md` with new authentication examples
-- **Architecture documentation** updated to reflect API key system design
-- **Service documentation** includes new ApiKeyService details
-- **Setup guides** updated with API key workflow instructions
-- **Example updates** throughout documentation to use API key authentication
-
-### Technical Improvements
 
 #### **Security Enhancements**
 
@@ -66,6 +46,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Proper authorization header validation** with whitespace handling
 - **Enhanced permission and role validation** with detailed error responses
 
+#### **New API Endpoints**
+
+- **API key management endpoints** - `/api/v1/api-keys/*` routes for API key operations
+- **Management endpoints** - New `/api/v1/management/*` routes for system administration
+- **Enhanced response metadata** - All responses now include API key tier information where applicable
+
+#### **Commit Verification System**
+
+- **GPG commit signing** - Complete setup with ECC Curve 25519 encryption for cryptographic commit verification
+- **Comprehensive Git hooks** - Pre-commit, commit-msg, post-commit, and pre-push hooks for quality assurance
+- **Security auditing** - Automated vulnerability scanning and dependency validation
+- **Commit verification tools** - Scripts for verifying commit signatures and message format compliance
+- **Documentation linting** - Automated markdown and code formatting validation
+- **Performance monitoring** - Pre-commit performance checks and optimization validation
+
+### Changed
+
+#### **Documentation Updates**
+
+- **Updated README.md** with complete API key authentication guide
+- **API documentation refresh** in `docs/api/README.md` with new authentication examples
+- **Architecture documentation** updated to reflect API key system design
+- **Service documentation** includes new ApiKeyService details
+- **Setup guides** updated with API key workflow instructions
+- **Example updates** throughout documentation to use API key authentication
+
 #### **Code Quality & Maintenance**
 
 - **ESLint compliance** - All lint issues resolved for clean codebase
@@ -73,7 +79,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Standardized error responses** with structured ApiResponse format
 - **Improved logging** with request correlation and API key context
 
-### Bug Fixes
+#### **Project Organization**
+
+- **Script consolidation** - Moved all executable scripts from `scripts/` to `bin/` directory for better organization
+- **Enhanced npm scripts** - Added commit verification, security auditing, and hook testing commands
+- **Conventional commits enforcement** - Updated all Git hooks to enforce conventional commit message format
+
+#### **Authentication System (Breaking Changes)**
+
+- **JWT authentication deprecated** - All endpoints now require API key authentication
+- **Authorization header format** - Changed from `Bearer <jwt_token>` to `Bearer <api_key>`
+- **Error response structure** - Enhanced error responses with additional context and details
+- **Rate limiting behavior** - Now based on API key tiers instead of IP/user-based limiting
+
+### Fixed
 
 #### **Test Suite Stabilization**
 
@@ -81,27 +100,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Rate limiter response structure** - Fixed mock return values to match actual Redis responses
 - **Error message consistency** - Aligned all test expectations with actual middleware responses
 - **Mock service cleanup** - Removed unused mock objects and variables
+- **Rate limiter test refinements** - Fixed accurate response structure validation
+- **Error message standardization** - Aligned all test expectations across test suites
 
-#### **Middleware Fixes**
+#### **Middleware & System Fixes**
 
 - **Request object validation** - Added proper IP and connection properties for middleware processing
 - **Error code standardization** - Consistent error codes across all authentication flows
 - **Memory leak prevention** - Proper cleanup in test suites and mock implementations
+- **TypeScript build issues** - Fixed version mismatches and type compatibility
+- **Linting issues** - Resolved ESLint and Prettier conflicts
 
-### Breaking Changes
+#### **Commit Verification Fixes**
 
-#### **Authentication System**
-
-- **JWT authentication deprecated** - All endpoints now require API key authentication
-- **Authorization header format** - Changed from `Bearer <jwt_token>` to `Bearer <api_key>`
-- **Error response structure** - Enhanced error responses with additional context and details
-- **Rate limiting behavior** - Now based on API key tiers instead of IP/user-based limiting
-
-#### **API Changes**
-
-- **New API key endpoints** - `/api/v1/api-keys/*` routes for API key management
-- **Management endpoints** - New `/api/v1/management/*` routes for system administration
-- **Enhanced response metadata** - All responses now include API key tier information where applicable
+- **GPG agent configuration** - Fixed pinentry setup for macOS commit signing
+- **Hook execution permissions** - Ensured all Git hooks are properly executable
+- **Markdown formatting** - Fixed documentation formatting issues in commit verification guide
+- **Version references** - Updated all test expectations to match version 0.2.0
+- **Script path references** - Updated all references from `scripts/` to `bin/` directory
 
 ---
 
